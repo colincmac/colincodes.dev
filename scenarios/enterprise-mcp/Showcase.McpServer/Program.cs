@@ -21,12 +21,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 // Dapr client
 builder.Services.AddDaprClient();
-// OpenTelemetry Tracing
-builder.Services.AddOpenTelemetryTracing(tracerProviderBuilder => tracerProviderBuilder
-    .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(builder.Environment.ApplicationName))
-    .AddAspNetCoreInstrumentation()
-    .AddHttpClientInstrumentation()
-    .AddConsoleExporter());
+
 // MCP infrastructure services
 builder.Services.AddSingleton<IToolSchemaRegistry, ToolSchemaRegistry>();
 builder.Services.AddSingleton<IJsonSchemaValidator, JsonSchemaValidator>();

@@ -11,18 +11,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
-    <PackageReference Include="Dapr.Client" Version="1.9.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
+    <PackageReference Include="Dapr.Client" Version="1.15.4" />
     <!-- Dapr ASP.NET Core integration -->
-    <PackageReference Include="Dapr.AspNetCore" Version="1.9.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Identity.Web" Version="2.17.0" />
-    <!-- Use System.Text.Json-based schema validation -->
-    <PackageReference Include="Json.Schema" Version="2.0.2" />
-    <!-- OpenTelemetry monitoring -->
-    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.6.0" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9" />
+    <PackageReference Include="Dapr.AspNetCore" Version="1.15.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Identity.Web" Version="3.9.0" />
+
   </ItemGroup>
 
 </Project>

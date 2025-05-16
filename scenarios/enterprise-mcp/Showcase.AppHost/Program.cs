@@ -2,13 +2,13 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 var cache = builder.AddRedis("cache");
 
-var apiService = builder.AddProject<Projects.Showcase_ApiService>("apiservice");
+var mcpServer = builder.AddProject<Projects.Showcase_McpServer>("mcpserver");
 
 builder.AddProject<Projects.Showcase_Web>("webfrontend")
     .WithExternalHttpEndpoints()
     .WithReference(cache)
     .WaitFor(cache)
-    .WithReference(apiService)
-    .WaitFor(apiService);
+    .WithReference(mcpServer)
+    .WaitFor(mcpServer);
 
 builder.Build().Run();
