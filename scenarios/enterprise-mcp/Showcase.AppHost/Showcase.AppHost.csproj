@@ -11,13 +11,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Showcase.ApiService\Showcase.McpServer.csproj" />
+    <ProjectReference Include="..\Showcase.McpServer\Showcase.McpServer.csproj" />
     <ProjectReference Include="..\Showcase.Web\Showcase.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.2.1" />
-    <PackageReference Include="Aspire.Hosting.Redis" Version="9.2.1" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.3.0" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="9.3.0" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Server\" />
+		<Folder Include="Utils\" />
+		<Folder Include="AspNetCore\" />
+		<Folder Include="Protocol\" />
+
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="ModelContextProtocol" Version="0.2.0-preview.1" />
+		<PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.2.0-preview.1" />
+
+	</ItemGroup>
+</Project>

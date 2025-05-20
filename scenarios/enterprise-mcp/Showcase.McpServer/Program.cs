@@ -3,11 +3,13 @@ using Microsoft.Identity.Web;
 using Dapr.Client;
 using Showcase.McpServer.Models;
 using Showcase.McpServer.Services;
+
 using OpenTelemetry;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Microsoft.AspNetCore.Authorization;
 using System.Net.Http;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire client integrations.
@@ -19,6 +21,16 @@ builder.Services.AddProblemDetails();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
 builder.Services.AddAuthorization();
+
+//var prm = new ProtectedResourceMetadata
+//{
+//    Resource = new Uri("http://localhost:7071"), // Changed from HTTPS to HTTP for local development
+//    AuthorizationServers = [new Uri("https://login.microsoftonline.com/a2213e1c-e51e-4304-9a0d-effe57f31655/v2.0")], // Let's use a dummy Entra ID tenant here
+//    BearerMethodsSupported = ["header"], // We support the Authorization header
+//    ScopesSupported = ["mcp.tools", "mcp.prompts", "mcp.resources"], // Scopes supported by this resource
+//    ResourceDocumentation = new Uri("https://example.com/docs/mcp-server-auth") // Optional documentation URL
+//};
+
 // Dapr client
 builder.Services.AddDaprClient();
 
