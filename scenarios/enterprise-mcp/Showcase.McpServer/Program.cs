@@ -1,35 +1,120 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Identity.Web;
 using Dapr.Client;
-using Showcase.McpServer.Models;
-using Showcase.McpServer.Services;
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Identity.Web;
+using Microsoft.IdentityModel.Tokens;
+using ModelContextProtocol;
+using ModelContextProtocol.AspNetCore.Authentication;
+using ModelContextProtocol.Authentication;
 using OpenTelemetry;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using Microsoft.AspNetCore.Authorization;
+using Showcase.McpServer.Extensions.Auth;
+using Showcase.McpServer.Models;
+using Showcase.McpServer.Services;
+using Showcase.McpServer.Tools;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire client integrations.
 builder.AddServiceDefaults();
 
+builder.Services.Configure<McpServerOptions>(builder.Configuration.GetRequiredSection(McpServerOptions.SectionName));
+
 // Add services to the container.
 builder.Services.AddProblemDetails();
 // Authentication & Authorization
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
-builder.Services.AddAuthorization();
+//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+//    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+//builder.Services.AddAuthorization();
+var serverUrl = "http://localhost:7071/";
+var tenantId = "a2213e1c-e51e-4304-9a0d-effe57f31655";
+var instance = "https://login.microsoftonline.com/";
 
-//var prm = new ProtectedResourceMetadata
+builder.Services.AddProtectedResourceMetadata(builder.Configuration, "ProtectedResource");
+
+builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration)
+    .EnableTokenAcquisitionToCallDownstreamApi()
+    .AddDistributedTokenCaches();
+
+
+//builder.Services.AddAuthentication(options =>
 //{
-//    Resource = new Uri("http://localhost:7071"), // Changed from HTTPS to HTTP for local development
-//    AuthorizationServers = [new Uri("https://login.microsoftonline.com/a2213e1c-e51e-4304-9a0d-effe57f31655/v2.0")], // Let's use a dummy Entra ID tenant here
-//    BearerMethodsSupported = ["header"], // We support the Authorization header
-//    ScopesSupported = ["mcp.tools", "mcp.prompts", "mcp.resources"], // Scopes supported by this resource
-//    ResourceDocumentation = new Uri("https://example.com/docs/mcp-server-auth") // Optional documentation URL
-//};
+//    options.DefaultChallengeScheme = McpAuthenticationDefaults.AuthenticationScheme;
+//    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+//})
+//.AddJwtBearer(options =>
+//{
+//    options.Authority = $"{instance}{tenantId}/v2.0";
+//    options.TokenValidationParameters = new TokenValidationParameters
+//    {
+//        ValidateIssuer = true,
+//        ValidateAudience = true,
+//        ValidateLifetime = true,
+//        ValidateIssuerSigningKey = true,
+//        ValidAudience = "167b4284-3f92-4436-92ed-38b38f83ae08",
+//        ValidIssuer = $"{instance}{tenantId}/v2.0",
+//        NameClaimType = "name",
+//        RoleClaimType = "roles"
+//    };
+
+//    options.MetadataAddress = $"{instance}{tenantId}/v2.0/.well-known/openid-configuration";
+
+//    options.Events = new JwtBearerEvents
+//    {
+//        OnTokenValidated = context =>
+//        {
+//            var name = context.Principal?.Identity?.Name ?? "unknown";
+//            var email = context.Principal?.FindFirstValue("preferred_username") ?? "unknown";
+//            Console.WriteLine($"Token validated for: {name} ({email})");
+//            return Task.CompletedTask;
+//        },
+//        OnAuthenticationFailed = context =>
+//        {
+//            Console.WriteLine($"Authentication failed: {context.Exception.Message}");
+//            return Task.CompletedTask;
+//        },
+//        OnChallenge = context =>
+//        {
+//            Console.WriteLine($"Challenging client to authenticate with Entra ID");
+//            return Task.CompletedTask;
+//        }
+//    };
+//})
+//.AddMcp(options =>
+//{
+//    //options.ProtectedResourceMetadataProvider = context =>
+//    //{
+//    //    var metadata = new ProtectedResourceMetadata
+//    //    {
+//    //        Resource = new Uri("http://localhost"),
+//    //        BearerMethodsSupported = { "header" },
+//    //        ResourceDocumentation = new Uri("https://docs.example.com/api/weather"),
+//    //        AuthorizationServers = { new Uri($"{instance}{tenantId}/v2.0") }
+//    //    };
+
+//    //    metadata.ScopesSupported.AddRange([
+//    //        "api://167b4284-3f92-4436-92ed-38b38f83ae08/weather.read"
+//    //    ]);
+
+//    //    return metadata;
+//    //};
+//});
+
+builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddMcpServer()
+    .WithTools<WeatherTools>()
+    .WithHttpTransport();
+
+builder.Services.AddHttpClient("WeatherApi", client =>
+{
+    client.BaseAddress = new Uri("https://api.weather.gov");
+    client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("weather-tool", "1.0"));
+});
 
 // Dapr client
 builder.Services.AddDaprClient();
@@ -54,24 +139,10 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-// TODO: Remove sample endpoint when implementing MCP endpoints
-string[] summaries = ["Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"];
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
 app.MapDefaultEndpoints();
+
+app.MapMcp().RequireAuthorization();
+
 
 // Load allowed tools list from configuration
 var allowedTools = builder.Configuration.GetSection("AllowedTools").Get<string[]>() ?? Array.Empty<string>();

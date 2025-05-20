@@ -4,18 +4,24 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Client\**" />
+    <EmbeddedResource Remove="Client\**" />
+    <None Remove="Client\**" />
+  </ItemGroup>
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="Server\" />
-		<Folder Include="Utils\" />
 		<Folder Include="AspNetCore\" />
-		<Folder Include="Protocol\" />
+		<Folder Include="Protocol\Transport\" />
 
 	</ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.5" />
 		<PackageReference Include="ModelContextProtocol" Version="0.2.0-preview.1" />
 		<PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.2.0-preview.1" />
 

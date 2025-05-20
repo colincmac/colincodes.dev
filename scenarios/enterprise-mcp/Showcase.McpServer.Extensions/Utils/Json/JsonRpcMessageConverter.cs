@@ -1,4 +1,4 @@
-using ModelContextProtocol.Protocol.Messages;
+using ModelContextProtocol.Protocol;
 using System.ComponentModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;

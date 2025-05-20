@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.AI;
-using ModelContextProtocol.Protocol.Messages;
-using ModelContextProtocol.Protocol.Types;
+using ModelContextProtocol.Protocol;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -9,7 +8,7 @@ using System.Text.Json.Serialization.Metadata;
 namespace ModelContextProtocol.Utils.Json;
 
 /// <summary>Provides a collection of utility methods for working with JSON data in the context of MCP.</summary>
-public static partial class McpJsonUtilities
+public static partial class McpJsonUtilitiesExtensions
 {
     /// <summary>
     /// Gets the <see cref="JsonSerializerOptions"/> singleton used as the default in JSON serialization operations.
@@ -80,55 +79,9 @@ public static partial class McpJsonUtilities
     [JsonSourceGenerationOptions(JsonSerializerDefaults.Web,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         NumberHandling = JsonNumberHandling.AllowReadingFromString)]
-    
-    // JSON-RPC
-    [JsonSerializable(typeof(JsonRpcMessage))]
-    [JsonSerializable(typeof(JsonRpcMessage[]))]
-    [JsonSerializable(typeof(JsonRpcRequest))]
-    [JsonSerializable(typeof(JsonRpcNotification))]
-    [JsonSerializable(typeof(JsonRpcResponse))]
-    [JsonSerializable(typeof(JsonRpcError))]
-
-    // MCP Request Params / Results
-    [JsonSerializable(typeof(CallToolRequestParams))]
-    [JsonSerializable(typeof(CallToolResponse))]
-    [JsonSerializable(typeof(CancelledNotification))]
-    [JsonSerializable(typeof(CompleteRequestParams))]
-    [JsonSerializable(typeof(CompleteResult))]
-    [JsonSerializable(typeof(CreateMessageRequestParams))]
-    [JsonSerializable(typeof(CreateMessageResult))]
-    [JsonSerializable(typeof(EmptyResult))]
-    [JsonSerializable(typeof(GetPromptRequestParams))]
-    [JsonSerializable(typeof(GetPromptResult))]
-    [JsonSerializable(typeof(InitializeRequestParams))]
-    [JsonSerializable(typeof(InitializeResult))]
-    [JsonSerializable(typeof(ListPromptsRequestParams))]
-    [JsonSerializable(typeof(ListPromptsResult))]
-    [JsonSerializable(typeof(ListResourcesRequestParams))]
-    [JsonSerializable(typeof(ListResourcesResult))]
-    [JsonSerializable(typeof(ListResourceTemplatesRequestParams))]
-    [JsonSerializable(typeof(ListResourceTemplatesResult))]
-    [JsonSerializable(typeof(ListRootsRequestParams))]
-    [JsonSerializable(typeof(ListRootsResult))]
-    [JsonSerializable(typeof(ListToolsRequestParams))]
-    [JsonSerializable(typeof(ListToolsResult))]
-    [JsonSerializable(typeof(LoggingMessageNotificationParams))]
-    [JsonSerializable(typeof(PingResult))]
-    [JsonSerializable(typeof(ProgressNotification))]
-    [JsonSerializable(typeof(ReadResourceRequestParams))]
-    [JsonSerializable(typeof(ReadResourceResult))]
-    [JsonSerializable(typeof(ResourceUpdatedNotificationParams))]
-    [JsonSerializable(typeof(SetLevelRequestParams))]
-    [JsonSerializable(typeof(SubscribeRequestParams))]
-    [JsonSerializable(typeof(UnsubscribeRequestParams))]
-    [JsonSerializable(typeof(IReadOnlyDictionary<string, object>))]
-    
+   
     // Authorization-related types
-    [JsonSerializable(typeof(Protocol.Auth.ProtectedResourceMetadata))]
-    [JsonSerializable(typeof(Protocol.Auth.AuthorizationServerMetadata))]
-    [JsonSerializable(typeof(Protocol.Auth.ClientMetadata))]
-    [JsonSerializable(typeof(Protocol.Auth.ClientRegistration))]
-    [JsonSerializable(typeof(Protocol.Auth.Token))]
+    [JsonSerializable(typeof(Authentication.ProtectedResourceMetadata))]
 
     [ExcludeFromCodeCoverage]
     internal sealed partial class JsonContext : JsonSerializerContext;
