@@ -36,9 +36,7 @@ var instance = "https://login.microsoftonline.com/";
 
 builder.Services.AddProtectedResourceMetadata(builder.Configuration, "ProtectedResource");
 
-builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration)
-    .EnableTokenAcquisitionToCallDownstreamApi()
-    .AddDistributedTokenCaches();
+builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration);
 
 
 //builder.Services.AddAuthentication(options =>

@@ -1,0 +1,51 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\source\\_desktop\\colincodes-dev\\Website\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{8D2A8713-AD14-1087-E5FF-8E6F3E14F71B}|Showcase.Web\\Showcase.Web.csproj|c:\\source\\_desktop\\colincodes-dev\\website\\showcase.web\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8D2A8713-AD14-1087-E5FF-8E6F3E14F71B}|Showcase.Web\\Showcase.Web.csproj|solutionrelative:showcase.web\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 273,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\source\\_desktop\\colincodes-dev\\Website\\Showcase.Web\\Program.cs",
+              "RelativeDocumentMoniker": "Showcase.Web\\Program.cs",
+              "ToolTip": "C:\\source\\_desktop\\colincodes-dev\\Website\\Showcase.Web\\Program.cs",
+              "RelativeToolTip": "Showcase.Web\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-07T20:03:51.589Z",
+              "EditorCaption": ""
+            }
+          ]
+        },
+        {
+          "DockedWidth": 168,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

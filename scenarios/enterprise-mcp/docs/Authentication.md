@@ -1,13 +1,14 @@
-# ProtectedResourceMetadataLibrary
+﻿# MCP and the Protected Resource Metadata OAuth Spec
 
 This library enables ASP.NET Core API servers to dynamically fetch and use OAuth 2.0 Protected Resource Metadata (RFC 9728) for client authentication and authorization.
 
+## Why can't we use the current methods for registering clients and resource servers?
+- **Static configuration**: Current methods require static configuration of client IDs and secrets, which is not scalable or flexible.
+
 ## Why use `AddProtectedResourceJwtBearer` vs a custom AuthenticationHandler
 
-- **Leverages built-in JWT Bearer**: Extending the existing `JwtBearerHandler` preserves ASP.NET Core�s proven token validation, audience checks, and pipeline behavior.
+- **Leverages built-in JWT Bearer**: Extending the existing `JwtBearerHandler` preserves ASP.NET Core’s proven token validation, audience checks, and pipeline behavior.
 - **Minimal custom code**: Hooks only the `OnChallenge` event to inject the `resource_metadata` parameter rather than reimplementing the full handler pipeline.
-- **Easier maintenance**: Aligns with Microsoft�s authentication abstractions, benefiting from ongoing security patches, features, and documentation.
-- **Interceptor vs full handler**: Using an extension method is less invasive, keeps your codebase smaller, and reduces duplication of core JWT logic.
 
 ## Supporting Signed Protected Resource Metadata
 
@@ -25,9 +26,21 @@ RFC 9728 allows metadata to be returned as a signed JWT (JWS). To enforce integr
 - Uses `System.IdentityModel.Tokens.Jwt` to validate the JWS (issuer, signature).
 - Upon successful validation, extracts the JSON payload and deserializes into `ProtectedResourceMetadata`.
 
+### Choose your interception point
+
+Client → use an HttpClient handler.
+
+API → use `JwtBearerEvents.OnChallenge` or an `AuthenticationHandler` middleware.
+
 
 ## Integration with Microsoft Identity SDK and Entra ID
 
+### Client - Current State
+
+MSAL (and Microsoft.Identity libraries) gives you the building-blocks for parsing and acquiring tokens from a 401 challenge, but does not automatically wire up the HTTP retry or response rewriting for you. 
+You must plug into your HTTP stack (handler or middleware) to intercept the 401, parse the header, call MSAL, and then retry or re-challenge as appropriate.
+
+## E2E Example
 The easiest way to combine this library with Azure AD (Entra ID) is via Microsoft.Identity.Web:
 
 1. **Add NuGet packages** to your `.csproj`:

@@ -59,7 +59,7 @@ public class ProtectedResourceMetadataService : IProtectedResourceMetadataServic
             {
                 // Preliminary fetch to get jwks_uri (unsigned)
                 var unsigned = await GetUnsignedMetadataAsync(client, host);
-                if (string.IsNullOrEmpty(unsigned.JwksUri))
+                if (unsigned.JwksUri is null)
                     throw new InvalidOperationException("jwks_uri not provided in metadata.");
 
                 var jwksJson = await client.GetStringAsync(unsigned.JwksUri, context.RequestAborted);
