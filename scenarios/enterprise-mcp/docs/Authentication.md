@@ -102,5 +102,21 @@ The easiest way to combine this library with Azure AD (Entra ID) is via Microsof
 
 4. After this setup, any 401 responses from your API will include:
    ```
-   WWW-Authenticate: Bearer resource_metadata="https://api.yourdomain.com/.well-known/oauth-protected-resource"
-   ```
+WWW-Authenticate: Bearer resource_metadata="https://api.yourdomain.com/.well-known/oauth-protected-resource"
+```
+
+## Building a confidential client
+
+The `Showcase.Authentication.Client` namespace includes helpers for building
+clients that understand RFC 9728 challenges. Implement
+`IConfidentialClientCredentialProvider` to acquire tokens and register the
+`AuthorizationDelegatingHandler` with your `HttpClient`:
+
+```csharp
+var provider = new MyCredentialProvider();
+var http = new HttpClient(new AuthorizationDelegatingHandler(provider));
+```
+
+When a protected resource responds with a `WWW-Authenticate` header containing a
+`resource_metadata` parameter, the handler will fetch the metadata, invoke your
+credential provider, and retry the request with the proper credentials.
