@@ -34,6 +34,11 @@ public class ProtectedResourceMetadataService : IProtectedResourceMetadataServic
         _cache = cache;
         _options = options.Value;
     }
+    public Task<Uri> GetResourceMetadataUriAsync(HttpContext context)
+    { 
+        context.Han
+        throw new NotImplementedException();
+    }
 
     public async Task<ProtectedResourceMetadata> GetMetadataAsync(HttpContext context)
     {
@@ -131,6 +136,8 @@ public class ProtectedResourceMetadataService : IProtectedResourceMetadataServic
         return JsonSerializer.Deserialize<ProtectedResourceMetadata>(stream, _jsonOptions)
                ?? throw new InvalidOperationException("Failed to deserialize unsigned metadata.");
     }
+
+
 }
 
 

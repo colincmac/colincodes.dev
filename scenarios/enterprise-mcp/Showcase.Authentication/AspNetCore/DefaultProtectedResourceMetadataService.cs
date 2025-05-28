@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
@@ -33,7 +34,12 @@ public class DefaultProtectedResourceMetadataService : IProtectedResourceMetadat
         _cache = cache;
         _options = options.Value;
     }
-
+    public async Task<Uri> GetResourceMetadataUriAsync(HttpContext context)
+    {
+        var host = $"{context.Request.Scheme}://{context.Request.Host}";
+        var endpoint = host + _options.WellKnownPath;
+        return new Uri(endpoint);
+    }
     public async Task<ProtectedResourceMetadata> GetMetadataAsync(HttpContext context)
     {
         var host = $"{context.Request.Scheme}://{context.Request.Host}";
@@ -130,6 +136,11 @@ public class DefaultProtectedResourceMetadataService : IProtectedResourceMetadat
         return JsonSerializer.Deserialize<ProtectedResourceMetadata>(stream, _jsonOptions)
                ?? throw new InvalidOperationException("Failed to deserialize unsigned metadata.");
     }
+
+    /// <summary>
+    /// Gets the base URL from the current request, including scheme, host, and path base.
+    /// </summary>
+    private string GetBaseUrl(HttpContext httpContext) => $"{httpContext.Request.Scheme}://{httpContext.Request.Host}{httpContext.Request.PathBase}";
 }
 
 

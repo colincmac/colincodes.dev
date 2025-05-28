@@ -13,4 +13,5 @@ namespace Showcase.Authentication.AspNetCore;
 public interface IProtectedResourceMetadataService
 {
     Task<ProtectedResourceMetadata> GetMetadataAsync(HttpContext context);
+    Task<Uri> GetResourceMetadataUriAsync(HttpContext context);
 }

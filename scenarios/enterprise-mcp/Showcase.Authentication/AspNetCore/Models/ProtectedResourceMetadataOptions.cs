@@ -13,7 +13,7 @@ public class ProtectedResourceMetadataOptions
     /// <summary>
     /// Path suffix under the host for the metadata endpoint (default: /.well-known/oauth-protected-resource).
     /// </summary>
-    public string WellKnownPath { get; set; } = "/.well-known/oauth-protected-resource";
+    public string WellKnownPath { get; set; } = OAuthConstants.WellKnownUris.OAuthProtectedResourceUri;
 
     /// <summary>
     /// Duration to cache the fetched metadata.

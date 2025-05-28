@@ -13,13 +13,12 @@ public static class AuthenticationBuilderExtensions
     /// <summary>
     /// Updates the JWTBearer Options to add a protected resource metadata URL into challenge responses.
     /// </summary>
-    public static AuthenticationBuilder AsJwtProtectedResource(
+    public static AuthenticationBuilder EnableProtectedResourceDiscovery(
         this AuthenticationBuilder builder,
         string displayName,
         string scheme = JwtBearerDefaults.AuthenticationScheme,
         Action<JwtBearerOptions>? configureOptions = null)
     {
-        builder.Services.AddHttpContextAccessor();
         builder.Services.AddSingleton<IProtectedResourceMetadataService, ProtectedResourceMetadataService>();
         builder.Services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, (options) => 
         {
