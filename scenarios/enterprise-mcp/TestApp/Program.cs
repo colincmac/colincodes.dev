@@ -1,4 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using Microsoft.Identity.Client;
 using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol.Transport;
 using TestApp;

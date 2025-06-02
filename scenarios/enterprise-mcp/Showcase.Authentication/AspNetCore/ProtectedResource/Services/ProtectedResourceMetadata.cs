@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -49,7 +51,7 @@ public class ProtectedResourceMetadata
     /// to the protected resource. Defined values are ["header", "body", "query"].
     /// </remarks>
     [JsonPropertyName("bearer_methods_supported")]
-    public List<string> BearerMethodsSupported { get; set; }
+    public List<string> BearerMethodsSupported { get; set; } = ["header"];
 
     /// <summary>
     /// The supported scopes.
@@ -156,4 +158,5 @@ public class ProtectedResourceMetadata
     /// </remarks>
     [JsonPropertyName("dpop_bound_access_tokens_required")]
     public bool? DpopBoundAccessTokensRequired { get; set; }
+
 }

@@ -5,12 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Showcase.Authentication;
-public static class OAuthConstants
+public static class ProtectedResourceConstants
 {
-    public static class WellKnownUris
-    {
-        public const string OAuthProtectedResourceUri = "/.well-known/oauth-protected-resource";
-    }
+    public const string DefaultOAuthProtectedResourceRoute = "/.well-known/oauth-protected-resource/{resource}";
+    
+    public const string JsonWebKeySetRoute = "/.well-known/jwks";
 
     public static class WWWAuthenticateKeys
     {
