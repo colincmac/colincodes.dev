@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Extensions\**" />
+    <Content Remove="Extensions\**" />
+    <EmbeddedResource Remove="Extensions\**" />
+    <None Remove="Extensions\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Showcase.McpServer.Extensions\Showcase.McpServer.Extensions.csproj" />
     <ProjectReference Include="..\Showcase.ServiceDefaults\Showcase.ServiceDefaults.csproj" />
   </ItemGroup>
@@ -21,10 +28,6 @@
     <PackageReference Include="ModelContextProtocol" Version="0.2.0-preview.1" />
     <PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.2.0-preview.1" />
 
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Extensions\" />
   </ItemGroup>
 
 </Project>

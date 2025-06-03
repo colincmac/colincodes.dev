@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using Showcase.Authentication.AspNetCore.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

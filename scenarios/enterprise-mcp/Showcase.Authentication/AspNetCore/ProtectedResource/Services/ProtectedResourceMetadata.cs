@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Showcase.Authentication.AspNetCore.Models;
+namespace Showcase.Authentication.AspNetCore.ProtectedResource.Services;
 /// <summary>
 /// Represents the resource metadata for OAuth authorization as defined in RFC 9396.
 /// Defined by <see href="https://datatracker.ietf.org/doc/rfc9728/">RFC 9728</see>. 

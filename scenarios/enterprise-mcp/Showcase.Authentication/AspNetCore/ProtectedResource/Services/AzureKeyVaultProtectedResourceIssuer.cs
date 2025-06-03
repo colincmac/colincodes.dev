@@ -4,7 +4,6 @@ using Azure.Security.KeyVault.Keys.Cryptography;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using Showcase.Authentication.AspNetCore.Models;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;

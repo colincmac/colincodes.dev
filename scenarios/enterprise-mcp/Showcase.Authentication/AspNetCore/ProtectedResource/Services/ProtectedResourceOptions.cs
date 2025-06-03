@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Showcase.Authentication.AspNetCore.ProtectedResource;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -6,7 +7,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Showcase.Authentication.AspNetCore.Models;
+namespace Showcase.Authentication.AspNetCore.ProtectedResource.Services;
 /// <summary>
 /// Configuration options for fetching and caching protected resource metadata.
 /// </summary>
