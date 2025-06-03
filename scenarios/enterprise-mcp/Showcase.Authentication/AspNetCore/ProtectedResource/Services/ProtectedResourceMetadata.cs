@@ -24,6 +24,8 @@ public class ProtectedResourceMetadata
         ScopesSupported = [];
     }
 
+    public ProtectedResourceOptions Options { get; init; } = new ProtectedResourceOptions();
+
     /// <summary>
     /// The resource URI.
     /// </summary>

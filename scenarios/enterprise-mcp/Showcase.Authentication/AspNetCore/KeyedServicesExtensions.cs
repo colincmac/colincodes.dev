@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -7,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Showcase.Authentication.AspNetCore;
-internal static class OptionsExtensions
+internal static class KeyedServicesExtensions
 {    
     
     /// <summary>
@@ -27,5 +28,21 @@ internal static class OptionsExtensions
         }
 
         return optionsMonitor.Get(serviceKey);
+    }
+
+    /// <summary>
+    /// Gets a keyed service from the <see cref="IServiceProvider"/>, or a non-keyed service if the key is <see langword="null"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of service object to get.</typeparam>
+    /// <param name="provider">The <see cref="IServiceProvider"/> to retrieve the service object from.</param>
+    /// <param name="serviceKey">An optional string that specifies the key of service object to get.</param>
+    /// <returns>A service object of type <typeparamref name="T"/>.</returns>
+    /// <exception cref="InvalidOperationException">There is no service of type <typeparamref name="T"/> registered.</exception>
+    public static T GetRequiredOrKeyedRequiredService<T>(this IServiceProvider provider, string? serviceKey)
+        where T : notnull
+    {
+        return serviceKey is null
+            ? provider.GetRequiredService<T>()
+            : provider.GetRequiredKeyedService<T>(serviceKey);
     }
 }

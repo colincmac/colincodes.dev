@@ -9,7 +9,7 @@ namespace Showcase.Authentication.AspNetCore.ProtectedResource.Services;
 /// <summary>
 /// Fetches and caches protected resource metadata from a well-known endpoint.
 /// </summary>
-public interface IProtectedResourceMetadataService
+public interface IProtectedResourceMetadataProvider
 {
     Task<ProtectedResourceMetadata> GetProtectedResourceMetadataAsync(HttpContext context);
     Task<string> GetResourceMetadataUriAsync(HttpContext context);

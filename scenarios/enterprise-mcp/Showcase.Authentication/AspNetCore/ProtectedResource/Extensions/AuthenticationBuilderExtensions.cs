@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using Showcase.Authentication.AspNetCore.ProtectedResource.Services;
 using System.Text.Encodings.Web;
@@ -11,17 +11,60 @@ using System.Text.Encodings.Web;
 namespace Showcase.Authentication.AspNetCore.ProtectedResource.Extensions;
 public static class AuthenticationBuilderExtensions
 {
+    public static AuthenticationBuilder AddProtectedResources(
+        this AuthenticationBuilder builder,
+        IConfigurationSection configurationSection)
+    {
+        Dictionary<string, ProtectedResourceMetadata> options = configurationSection.Get<Dictionary<string, ProtectedResourceMetadata>>()
+            ?? new Dictionary<string, ProtectedResourceMetadata>(StringComparer.OrdinalIgnoreCase);
+        builder.Services.AddHttpContextAccessor();
+        foreach (var optionsForService in options.Keys)
+        {
+            builder.Services.Configure<ProtectedResourceMetadata>(optionsForService, configurationSection.GetSection(optionsForService));
+            builder.Services.AddSingleton(new NamedService<ProtectedResourceService>(optionsForService));
+        }
+        return builder;
+    }
+
+    private static AuthenticationBuilder AddProtectedResource(
+        this AuthenticationBuilder builder,
+        ProtectedResourceMetadata metadata)
+    {
+        string hostedResource = metadata.Resource.AbsolutePath.TrimStart('/').ToLowerInvariant();
+
+        if(!string.IsNullOrEmpty(hostedResource)) builder.Services.AddSingleton(new NamedService<ProtectedResourceService>(hostedResource));
+
+        // Register the signing provider if a signing key is specified
+        if (!string.IsNullOrEmpty(metadata.Options.SigningKeyVaultUri) && !string.IsNullOrEmpty(metadata.Options.SigningKeyName))
+        {
+            //builder.Services.AddKeyedScoped<IProtectedResourceIssuer, AzureKeyVaultProtectedResourceIssuer>(hostedResource, (sp) =>
+            //{
+            //    var options = sp.GetRequiredService<IOptionsMonitor<ProtectedResourceMetadata>>().Get(hostedResource);
+            //    return new AzureKeyVaultProtectedResourceIssuer(options.Options.SigningKeyName, options.Options.SigningKeyVaultUri, sp.GetRequiredService<IHttpContextAccessor>());
+            //});
+            //builder.Services.AddAzureKeyVaultCertificate(metadata.Options.SigningKeyVaultName, metadata.Options.SigningKeyVaultUri);
+        }
+
+        builder.Services.AddSingleton<IProtectedResourceMetadataProvider, ProtectedResourceMetadataProvider>();
+
+        return builder;
+    }
+
     /// <summary>
     /// Updates the JWTBearer Options to add a protected resource metadata URL into challenge responses.
     /// </summary>
-    public static AuthenticationBuilder AsProtectedResource(
+    public static AuthenticationBuilder AddProtectedResource(
         this AuthenticationBuilder builder,
-        string displayName,
-        string scheme = JwtBearerDefaults.AuthenticationScheme,
-        Action<JwtBearerOptions>? configureOptions = null)
+        string? hostedResource = null,
+        Action<ProtectedResourceMetadata> configureProtectedResourceMetadata = null)
     {
         builder.Services.AddHttpContextAccessor();
-        builder.Services.AddSingleton<IProtectedResourceMetadataService, ProtectedResourceMetadataService>();
+
+        if (!string.IsNullOrEmpty(hostedResource))
+        {
+            builder.Services.AddSingleton(new NamedService<ProtectedResourceService>(hostedResource));
+        }
+
         builder.Services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, (options) => 
         {
             if(configureOptions is not null) configureOptions(options);
@@ -29,7 +72,7 @@ public static class AuthenticationBuilderExtensions
             options.Events.OnChallenge += async (context) =>
             {
 
-                var metadataService = context.HttpContext.RequestServices.GetRequiredService<IProtectedResourceMetadataService>();
+                var metadataService = context.HttpContext.RequestServices.GetRequiredService<IProtectedResourceMetadataProvider>();
                 try
                 {
                     var url = $"{context.HttpContext}";
@@ -55,4 +98,5 @@ public static class AuthenticationBuilderExtensions
 
         return builder;
     }
+
 }

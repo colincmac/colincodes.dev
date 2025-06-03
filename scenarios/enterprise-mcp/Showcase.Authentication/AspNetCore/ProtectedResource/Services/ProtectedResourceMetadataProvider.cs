@@ -23,21 +23,24 @@ using System.Threading.Tasks;
 
 namespace Showcase.Authentication.AspNetCore.ProtectedResource.Services;
 
-public class ProtectedResourceMetadataService : IProtectedResourceMetadataService
+public class ProtectedResourceMetadataProvider : IProtectedResourceMetadataProvider
 {
     private readonly IOptionsMonitor<ProtectedResourceOptions> _optionsMonitor;
     private readonly IOptionsMonitor<ProtectedResourceMetadata> _metadataMonitor;
     private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
     private readonly IProtectedResourceIssuer _protectedResourceIssuer;
+    private readonly IEnumerable<NamedService<ProtectedResourceService>> _protectedResourceServiceRegistry;
 
-    public ProtectedResourceMetadataService(
+    public ProtectedResourceMetadataProvider(
         IOptionsMonitor<ProtectedResourceOptions> optionsMonitor,
         IOptionsMonitor<ProtectedResourceMetadata> metadataMonitor,
-        IProtectedResourceIssuer protectedResourceIssuer) 
+        IProtectedResourceIssuer protectedResourceIssuer,
+        IEnumerable<NamedService<ProtectedResourceService>> protectedResourceServiceRegistry) 
     {
         _optionsMonitor = optionsMonitor;
         _metadataMonitor = metadataMonitor;
         _protectedResourceIssuer = protectedResourceIssuer;
+        _protectedResourceServiceRegistry = protectedResourceServiceRegistry;
     }
 
 
@@ -78,7 +81,17 @@ public class ProtectedResourceMetadataService : IProtectedResourceMetadataServic
         return resourceUri;
     }
 
-
+    /// <summary>
+    /// Provides all hosted resources that are currently managed in the application.
+    /// </summary>
+    public IEnumerable<string> GetProtectedResourceNames()
+    {
+        // Keyed services lack an API to resolve all registered keys.
+        // We use the service provider to resolve an internal type.
+        // This type tracks registered resource names.
+        // See https://github.com/dotnet/runtime/issues/100105 for more info.
+        return _protectedResourceServiceRegistry.Select(resService => resService.Name);
+    }
 }
 
 

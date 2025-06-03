@@ -11,13 +11,18 @@ using System.Threading.Tasks;
 namespace Showcase.Authentication.AspNetCore.ProtectedResource;
 public class DiscoveryKeysHealthCheck : IHealthCheck
 {
-    private readonly IEnumerable<ProtectedResourceOptions> _protectedResources;
+    private readonly ICollection<Uri> _jwksUris = [];
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public DiscoveryKeysHealthCheck(IHttpContextAccessor httpContextAccessor, IOptionsMonitor<ProtectedResourceOptions> protectedResourceOptions)
+    public DiscoveryKeysHealthCheck(IHttpContextAccessor httpContextAccessor, IEnumerable<NamedService<ProtectedResourceService>> protectedResources, IOptionsMonitor<ProtectedResourceMetadata> protectedResourceMetadataMonitor)
     {
-        _protectedResources = protectedResourceOptions.;
         _httpContextAccessor = httpContextAccessor;
+
+        foreach (var resourceName in protectedResources.Select(x => x.Name))
+        {
+            var metadata = protectedResourceMetadataMonitor.GetKeyedOrCurrent(resourceName);
+            if(metadata?.JwksUri is not null) _jwksUris.Add(metadata.JwksUri);
+        }
     }
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
@@ -25,7 +30,6 @@ public class DiscoveryKeysHealthCheck : IHealthCheck
         ArgumentNullException.ThrowIfNull(context);
         try
         {
-            var endpoint = _endpoints.FirstOrDefault(x => x.Name == IdentityServerConstants.EndpointNames.Jwks);
             if (endpoint != null)
             {
                 if (_httpContextAccessor.HttpContext?.RequestServices.GetRequiredService(endpoint.Handler) is IEndpointHandler handler)
@@ -43,5 +47,10 @@ public class DiscoveryKeysHealthCheck : IHealthCheck
         }
 
         return new HealthCheckResult(context.Registration.FailureStatus);
+    }
+
+    private IEnumerable<ProtectedResourceMetadata> GetProtectedResources(string[] resourceNames)
+    {
+        return _protectedResources.Select(x => x.Value).ToList();
     }
 }
