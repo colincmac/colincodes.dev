@@ -6,36 +6,40 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using Showcase.Authentication.AspNetCore.ResourceServer.Services;
+using Showcase.Authentication.Core;
 using System.Text.Encodings.Web;
 
 namespace Showcase.Authentication.AspNetCore.ResourceServer.Extensions;
 public static class AuthenticationBuilderExtensions
 {
-    public static AuthenticationBuilder AddProtectedResources(
+    public static AuthenticationBuilder AddProtectedResourcesToScheme(
         this AuthenticationBuilder builder,
-        IConfigurationSection configurationSection)
+        IConfigurationSection configurationSection,
+        string authenticationScheme = JwtBearerDefaults.AuthenticationScheme)
     {
-        Dictionary<string, ProtectedResourceMetadata> options = configurationSection.Get<Dictionary<string, ProtectedResourceMetadata>>()
-            ?? new Dictionary<string, ProtectedResourceMetadata>(StringComparer.OrdinalIgnoreCase);
-        builder.Services.AddHttpContextAccessor();
+        Dictionary<string, ProtectedResourceOptions> options = configurationSection.Get<Dictionary<string, ProtectedResourceOptions>>()
+            ?? new Dictionary<string, ProtectedResourceOptions>(StringComparer.OrdinalIgnoreCase);
         foreach (var (key, value) in options)
         {
-            builder.AddProtectedResource(value, key);
+            builder.AddProtectedResourceToScheme(value, authenticationScheme, key);
         }
         return builder;
     }
 
-    private static AuthenticationBuilder AddProtectedResource(
+    private static AuthenticationBuilder AddProtectedResourceToScheme(
         this AuthenticationBuilder builder,
-        ProtectedResourceMetadata metadata,
+        ProtectedResourceOptions options,
+        string authenticationScheme = JwtBearerDefaults.AuthenticationScheme,
         string? hostedResource = null)
     {
         // RFC 9728 allows for hosting multiple resources on a single server. e.g., `/.well-known/oauth-protected-resource/hostedResourceName` and `https://example.com/hostedResourceName`.
         // Here we check to see if the resource is the default resource (`https://example.com`) or a hosted resource (`https://example.com/hostedResourceName`).
         if (!string.IsNullOrEmpty(hostedResource)) builder.Services.AddSingleton(new NamedService<ProtectedResourceService>(hostedResource));
 
+        var protectedResourceMetadata = BuildProtectedResourceMetadataForScheme(authenticationScheme);
+
         // Register the signing provider if a signing key is specified
-        if (!string.IsNullOrEmpty(metadata.Options.SigningKeyVaultUri) && !string.IsNullOrEmpty(metadata.Options.SigningKeyName))
+        if (!string.IsNullOrEmpty(options.SigningKeyVaultUri) && !string.IsNullOrEmpty(options.SigningKeyName))
         {
             //builder.Services.AddKeyedScoped<IProtectedResourceIssuer, AzureKeyVaultProtectedResourceIssuer>(hostedResource, (sp) =>
             //{
@@ -48,6 +52,19 @@ public static class AuthenticationBuilderExtensions
         builder.Services.AddSingleton<IProtectedResourceMetadataProvider, ProtectedResourceMetadataProvider>();
 
         return builder;
+    }
+
+    private static ProtectedResourceMetadata BuildProtectedResourceMetadataForScheme(string authenticationScheme)
+    {
+        // This method can be used to build a ProtectedResourceMetadata instance based on the provided options.
+        // It can be customized to include additional properties or logic as needed.
+        return new ProtectedResourceMetadata
+        {
+            Resource = new Uri("https://example.com/.well-known/oauth-protected-resource"),
+            AuthorizationServers = new List<Uri> { new Uri("https://auth.example.com") },
+            BearerMethodsSupported = new List<string> { "header", "query" },
+            ScopesSupported = new List<string> { "read", "write" }
+        };
     }
 
     /// <summary>

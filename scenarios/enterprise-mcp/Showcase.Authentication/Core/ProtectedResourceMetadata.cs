@@ -9,7 +9,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Showcase.Authentication.AspNetCore.ResourceServer.Services;
+namespace Showcase.Authentication.Core;
 /// <summary>
 /// Represents the resource metadata for OAuth authorization as defined in RFC 9396.
 /// Defined by <see href="https://datatracker.ietf.org/doc/rfc9728/">RFC 9728</see>. 
@@ -26,13 +26,13 @@ public class ProtectedResourceMetadata
         ScopesSupported = [];
     }
 
-    [JsonIgnore]
-    public ProtectedResourceOptions Options { get; init; } = new ProtectedResourceOptions();
+    //[JsonIgnore]
+    //public ProtectedResourceOptions Options { get; init; } = new ProtectedResourceOptions();
 
-    public List<AuthenticationScheme> AuthenticationSchemes => [
-        new AuthenticationScheme(JwtBearerDefaults.AuthenticationScheme, JwtBearerDefaults.AuthenticationScheme, typeof(JwtBearerHandler)),
-        new AuthenticationScheme(DpopAuthenticationDefaults.AuthenticationScheme, DpopAuthenticationDefaults.AuthenticationScheme, typeof(DpopAuthenticationHandler))
-    ];
+    //public List<AuthenticationScheme> AuthenticationSchemes => [
+    //    new AuthenticationScheme(JwtBearerDefaults.AuthenticationScheme, JwtBearerDefaults.AuthenticationScheme, typeof(JwtBearerHandler)),
+    //    new AuthenticationScheme(DpopAuthenticationDefaults.AuthenticationScheme, DpopAuthenticationDefaults.AuthenticationScheme, typeof(DpopAuthenticationHandler))
+    //];
 
     /// <summary>
     /// The resource URI.

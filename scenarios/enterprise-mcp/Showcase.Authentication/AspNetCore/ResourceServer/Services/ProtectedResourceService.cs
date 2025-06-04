@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Showcase.Authentication.AspNetCore.ResourceServer;
+using Showcase.Authentication.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,25 +10,32 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Showcase.Authentication.AspNetCore.ResourceServer.Services;
-public sealed class ProtectedResourceService(IOptionsMonitor<ProtectedResourceMetadata> metadataMonitor, IProtectedResourceIssuer protectedResourceIssuer, [ServiceKey] string? hostedResource = null) : IProtectedResourceMetadataProvider
+public sealed class ProtectedResourceService(
+    IOptionsMonitor<ProtectedResourceMetadata> metadataMonitor, 
+    IProtectedResourceIssuer protectedResourceIssuer, 
+    [ServiceKey] string? hostedResource = null) : IProtectedResourceMetadataProvider
 {
     public ProtectedResourceMetadata ProtectedResourceMetadata => metadataMonitor.GetKeyedOrCurrent(hostedResource);
     public ProtectedResourceOptions Options => ProtectedResourceMetadata.Options;
     public string UnsignedWwwAuthenticateHeaderValue => $"{ProtectedResourceConstants.WWWAuthenticateKeys.UnsignedResourceMetadata}=\"{ProtectedResourceMetadata.JwksUri}\"";
 
-    public Task<ProtectedResourceMetadata> GetProtectedResourceMetadataAsync(CancellationToken cancellationToken = default)
+    public Task<ProtectedResourceMetadata> GetProtectedResourceMetadataAsync(CancellationToken? cancellationToken = default)
     {
         return Task.FromResult(ProtectedResourceMetadata);
     }
 
-    public Task<JsonWebKeySet> TryGetJwksDocumentAsync(CancellationToken cancellationToken = default)
+    public Task<JsonWebKeySet> GetJwksDocumentAsync(CancellationToken? cancellationToken = default)
     {
         return protectedResourceIssuer.GetJwksDocumentAsync(cancellationToken);
     }
 
-    public Task<string> GetSignedProtectedMetadataAsync(CancellationToken cancellationToken = default)
+    public Task<string> GetSignedProtectedMetadataAsync(CancellationToken? cancellationToken = default)
     {
         return protectedResourceIssuer.GetSignedProtectedMetadataAsync(ProtectedResourceMetadata, cancellationToken);
     }
 
+    public Task<HeaderDictionary> GetWwwAuthenticateHeadersAsync(CancellationToken? cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
 }

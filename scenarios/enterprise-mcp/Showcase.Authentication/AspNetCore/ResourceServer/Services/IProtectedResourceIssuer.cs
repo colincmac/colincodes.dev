@@ -1,4 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using Showcase.Authentication.Core;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -11,7 +12,7 @@ namespace Showcase.Authentication.AspNetCore.ResourceServer.Services;
 public interface IProtectedResourceIssuer
 {
 
-    Task<JsonWebKeySet> GetJwksDocumentAsync(CancellationToken cancellationToken);
+    Task<JsonWebKeySet> GetJwksDocumentAsync(CancellationToken? cancellationToken);
 
-    Task<string> GetSignedProtectedMetadataAsync(ProtectedResourceMetadata metadata, CancellationToken cancellationToken);
+    Task<string> GetSignedProtectedMetadataAsync(ProtectedResourceMetadata metadata, CancellationToken? cancellationToken);
 }

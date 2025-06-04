@@ -16,5 +16,6 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="ModelContextProtocol\" />
+	  <Folder Include="Client\" />
 	</ItemGroup>
 </Project>

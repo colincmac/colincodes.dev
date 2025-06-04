@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Showcase.Authentication.AspNetCore.ResourceServer.Services;
+using Showcase.Authentication.Core;
 
 
 namespace Showcase.Authentication.AspNetCore.ResourceServer;
