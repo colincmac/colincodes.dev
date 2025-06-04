@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization.Infrastructure;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +9,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Showcase.Authentication.AspNetCore.ProtectedResource.Services;
+namespace Showcase.Authentication.AspNetCore.ResourceServer.Services;
 /// <summary>
 /// Represents the resource metadata for OAuth authorization as defined in RFC 9396.
 /// Defined by <see href="https://datatracker.ietf.org/doc/rfc9728/">RFC 9728</see>. 
@@ -24,7 +26,13 @@ public class ProtectedResourceMetadata
         ScopesSupported = [];
     }
 
+    [JsonIgnore]
     public ProtectedResourceOptions Options { get; init; } = new ProtectedResourceOptions();
+
+    public List<AuthenticationScheme> AuthenticationSchemes => [
+        new AuthenticationScheme(JwtBearerDefaults.AuthenticationScheme, JwtBearerDefaults.AuthenticationScheme, typeof(JwtBearerHandler)),
+        new AuthenticationScheme(DpopAuthenticationDefaults.AuthenticationScheme, DpopAuthenticationDefaults.AuthenticationScheme, typeof(DpopAuthenticationHandler))
+    ];
 
     /// <summary>
     /// The resource URI.
@@ -161,4 +169,6 @@ public class ProtectedResourceMetadata
     [JsonPropertyName("dpop_bound_access_tokens_required")]
     public bool? DpopBoundAccessTokensRequired { get; set; }
 
+    [JsonPropertyName("signed_metadata")]
+    public string? SignedMetadata { get; set; }
 }

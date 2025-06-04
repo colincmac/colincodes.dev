@@ -18,7 +18,7 @@ using JwtConstants = Microsoft.IdentityModel.JsonWebTokens.JwtConstants;
 using JwtHeaderParameterNames = Microsoft.IdentityModel.JsonWebTokens.JwtHeaderParameterNames;
 using JwtRegisteredClaimNames = System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames;
 
-namespace Showcase.Authentication.AspNetCore.ProtectedResource.Services;
+namespace Showcase.Authentication.AspNetCore.ResourceServer.Services;
 public class AzureKeyVaultProtectedResourceIssuer : IProtectedResourceIssuer
 {
     private readonly KeyClient _keyClient;
@@ -28,7 +28,6 @@ public class AzureKeyVaultProtectedResourceIssuer : IProtectedResourceIssuer
     private JsonWebKeySet? _jwksDocument;
     private SigningCredentials? _signingCredentials;
     private DateTimeOffset? keyExpiration;
-    private JwtSecurityToken? _jwtSecurityToken;
 
     public AzureKeyVaultProtectedResourceIssuer(KeyClient keyClient, string keyName, string? keyVersion = null)
     {
@@ -78,12 +77,6 @@ public class AzureKeyVaultProtectedResourceIssuer : IProtectedResourceIssuer
                 SigningCredentials = _signingCredentials,
                 Claims = jsonPayload.RootElement.EnumerateObject().ToDictionary(c => c.Name, c => (object)c.Value.ToString()),
         });
-
-        //foreach (var claim in jsonPayload.RootElement.EnumerateObject())
-        //{
-        //    securityToken.Payload.Add(claim.Name, claim.Value);
-        //}
-
 
         var unsignedTokenData = securityToken.EncodedHeader + "." + securityToken.EncodedPayload;
         

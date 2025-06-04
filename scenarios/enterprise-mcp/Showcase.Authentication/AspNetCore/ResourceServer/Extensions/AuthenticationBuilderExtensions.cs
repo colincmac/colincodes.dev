@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
-using Showcase.Authentication.AspNetCore.ProtectedResource.Services;
+using Showcase.Authentication.AspNetCore.ResourceServer.Services;
 using System.Text.Encodings.Web;
 
-namespace Showcase.Authentication.AspNetCore.ProtectedResource.Extensions;
+namespace Showcase.Authentication.AspNetCore.ResourceServer.Extensions;
 public static class AuthenticationBuilderExtensions
 {
     public static AuthenticationBuilder AddProtectedResources(
@@ -18,21 +18,21 @@ public static class AuthenticationBuilderExtensions
         Dictionary<string, ProtectedResourceMetadata> options = configurationSection.Get<Dictionary<string, ProtectedResourceMetadata>>()
             ?? new Dictionary<string, ProtectedResourceMetadata>(StringComparer.OrdinalIgnoreCase);
         builder.Services.AddHttpContextAccessor();
-        foreach (var optionsForService in options.Keys)
+        foreach (var (key, value) in options)
         {
-            builder.Services.Configure<ProtectedResourceMetadata>(optionsForService, configurationSection.GetSection(optionsForService));
-            builder.Services.AddSingleton(new NamedService<ProtectedResourceService>(optionsForService));
+            builder.AddProtectedResource(value, key);
         }
         return builder;
     }
 
     private static AuthenticationBuilder AddProtectedResource(
         this AuthenticationBuilder builder,
-        ProtectedResourceMetadata metadata)
+        ProtectedResourceMetadata metadata,
+        string? hostedResource = null)
     {
-        string hostedResource = metadata.Resource.AbsolutePath.TrimStart('/').ToLowerInvariant();
-
-        if(!string.IsNullOrEmpty(hostedResource)) builder.Services.AddSingleton(new NamedService<ProtectedResourceService>(hostedResource));
+        // RFC 9728 allows for hosting multiple resources on a single server. e.g., `/.well-known/oauth-protected-resource/hostedResourceName` and `https://example.com/hostedResourceName`.
+        // Here we check to see if the resource is the default resource (`https://example.com`) or a hosted resource (`https://example.com/hostedResourceName`).
+        if (!string.IsNullOrEmpty(hostedResource)) builder.Services.AddSingleton(new NamedService<ProtectedResourceService>(hostedResource));
 
         // Register the signing provider if a signing key is specified
         if (!string.IsNullOrEmpty(metadata.Options.SigningKeyVaultUri) && !string.IsNullOrEmpty(metadata.Options.SigningKeyName))
@@ -81,7 +81,7 @@ public static class AuthenticationBuilderExtensions
                      * TODO: Investigate whether we need to add additional logic for the WWW-Authenticate header based on the default JWT Bearer handler.
                      * The JWT Bearer handler invokes default handler logic before events, adding it's own `Bearer realm...` context, resulting in a WWW-Authenticate header like `Bearer realm="https", resource_metadata="https://example.com/.well-known/oauth-protected-resource". 
                      */
-                    var resourceMetadataString = $"{ ProtectedResourceConstants.WWWAuthenticateKeys.ResourceMetadata }=\"{UrlEncoder.Default.Encode(url)}\"";
+                    var resourceMetadataString = $"{ ProtectedResourceConstants.WWWAuthenticateKeys.UnsignedResourceMetadata }=\"{UrlEncoder.Default.Encode(url)}\"";
                     if(!context.Response.Headers.WWWAuthenticate.Contains(JwtBearerDefaults.AuthenticationScheme)) context.Response.Headers.WWW
                         ;
                     context.Response.Headers.AppendCommaSeparatedValues(HeaderNames.WWWAuthenticate,

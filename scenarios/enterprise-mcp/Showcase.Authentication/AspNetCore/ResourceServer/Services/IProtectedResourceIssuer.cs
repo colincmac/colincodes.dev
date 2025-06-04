@@ -7,11 +7,11 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Showcase.Authentication.AspNetCore.ProtectedResource.Services;
+namespace Showcase.Authentication.AspNetCore.ResourceServer.Services;
 public interface IProtectedResourceIssuer
 {
 
     Task<JsonWebKeySet> GetJwksDocumentAsync(CancellationToken cancellationToken);
 
-    Task<JwtSecurityToken> SignProtectedMetadataAsync(ProtectedResourceMetadata metadata, CancellationToken cancellationToken);
+    Task<string> GetSignedProtectedMetadataAsync(ProtectedResourceMetadata metadata, CancellationToken cancellationToken);
 }

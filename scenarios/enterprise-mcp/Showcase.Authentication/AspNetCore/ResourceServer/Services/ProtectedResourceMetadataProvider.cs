@@ -21,7 +21,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Showcase.Authentication.AspNetCore.ProtectedResource.Services;
+namespace Showcase.Authentication.AspNetCore.ResourceServer.Services;
 
 public class ProtectedResourceMetadataProvider : IProtectedResourceMetadataProvider
 {
