@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Text;
 
 
 namespace Showcase.Authentication.AspNetCore.ResourceServer.Services;
@@ -21,7 +22,11 @@ internal class ProtectedResourceJwtBearerEvents
         
 
         _logger.LogInformation("Challenge initiated for scheme: {Scheme}", context.Scheme.Name);
-        
+
+        // For example:
+        // WWW-Authenticate: Bearer "
+        var sb = new StringBuilder();
+
         return Task.CompletedTask;
     }
 }

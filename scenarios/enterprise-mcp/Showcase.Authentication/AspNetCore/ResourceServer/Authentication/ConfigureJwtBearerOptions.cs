@@ -11,7 +11,7 @@ internal sealed class ConfigureJwtBearerOptions(ProtectedResourceJwtBearerEvents
     {
         if (Scheme == name)
         {
-            options.Events ??= new JwtBearerEvents(); // Despite nullability annotations saying this is unnecessary, it sometimes is null
+            options.Events ??= new JwtBearerEvents();
             options.Events.OnChallenge = CreateChallengeCallback(options.Events.OnChallenge, bearerEvents);
 
         }
