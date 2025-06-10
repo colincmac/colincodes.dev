@@ -1,9 +1,12 @@
 ﻿using Azure.Core;
 using Azure.Security.KeyVault.Keys;
 using Azure.Security.KeyVault.Keys.Cryptography;
+using Microsoft.Extensions.Azure;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using Showcase;
 using Showcase.Authentication.Core;
 using System;
 using System.Collections.Generic;
@@ -18,29 +21,30 @@ using System.Threading.Tasks;
 using JwtConstants = Microsoft.IdentityModel.JsonWebTokens.JwtConstants;
 using JwtHeaderParameterNames = Microsoft.IdentityModel.JsonWebTokens.JwtHeaderParameterNames;
 using JwtRegisteredClaimNames = System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames;
-
-namespace Showcase.Authentication.AspNetCore.ResourceServer.Services;
-public class AzureKeyVaultProtectedResourceIssuer : IProtectedResourceIssuer
+namespace Showcase.Authentication.AspNetCore.ResourceServer.Authentication;
+public class AzureKeyVaultProtectedResourceIssuer : ISignedProtectedResourceIssuer
 {
     private readonly KeyClient _keyClient;
     private readonly CryptographyClient _cryptographyClient;
-    private readonly string _keyName;
-    private readonly string? _keyVersion;
     private JsonWebKeySet? _jwksDocument;
     private SigningCredentials? _signingCredentials;
     private DateTimeOffset? keyExpiration;
 
-    public AzureKeyVaultProtectedResourceIssuer(KeyClient keyClient, string keyName, string? keyVersion = null)
-    {
-        _keyClient = keyClient;
-        _cryptographyClient = _keyClient.GetCryptographyClient(keyName, keyVersion);
-        _keyName = keyName;
-        _keyVersion = keyVersion;
-    }
+    private readonly string _keyName;
+    private readonly string? _keyVersion = null;
 
+    public AzureKeyVaultProtectedResourceIssuer(IAzureClientFactory<KeyClient> keyClientFactory, IOptionsMonitor<ProtectedResourceOptions> optionsMonitor, [ServiceKey] string serviceKeyName)
+    {
+        var options = optionsMonitor.GetKeyedOrCurrent(serviceKeyName);
+        _keyClient = keyClientFactory.CreateClient(serviceKeyName);
+        _cryptographyClient = _keyClient.GetCryptographyClient(options.SigningKeyName, options.SigningKeyObjectVersion);
+        _keyName = options.SigningKeyName ?? throw new ArgumentNullException(nameof(options.SigningKeyName), "Signing key name must be provided for Azure Key Vault issuer.");
+        _keyVersion = options.SigningKeyObjectVersion; // Optional, can be null if the latest version is desired
+    }
     public async Task<JsonWebKeySet> GetJwksDocumentAsync(CancellationToken cancellationToken = default)
     {
         if (_jwksDocument is not null && _jwksDocument.Keys.Any()) return _jwksDocument;
+
         KeyVaultKey key = await _keyClient.GetKeyAsync(_keyName, _keyVersion, cancellationToken);
         
         if (key is null || key.Properties.ExpiresOn < DateTimeOffset.UtcNow)
@@ -86,4 +90,8 @@ public class AzureKeyVaultProtectedResourceIssuer : IProtectedResourceIssuer
         return $"{unsignedTokenData}.{Base64UrlEncoder.Encode(signature)}";
     }
 
+    public Task<string> GetSignedProtectedMetadataAsync(ProtectedResourceMetadata metadata, CancellationToken? cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
 }

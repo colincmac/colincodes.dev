@@ -9,10 +9,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Showcase.Authentication.AspNetCore.ResourceServer.Services;
+namespace Showcase.Authentication.AspNetCore.ResourceServer.Authentication;
 public sealed class ProtectedResourceService(
     IOptionsMonitor<ProtectedResourceMetadata> metadataMonitor, 
-    IProtectedResourceIssuer protectedResourceIssuer, 
+    ISignedProtectedResourceIssuer protectedResourceIssuer, 
     [ServiceKey] string? hostedResource = null) : IProtectedResourceMetadataProvider
 {
     public ProtectedResourceMetadata ProtectedResourceMetadata => metadataMonitor.GetKeyedOrCurrent(hostedResource);

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Showcase.Authentication.AspNetCore.ResourceServer.Services;
+namespace Showcase.Authentication.AspNetCore.ResourceServer.Authentication;
 
 public interface IProtectedResourceMetadataProvider
 {

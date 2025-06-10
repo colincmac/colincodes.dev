@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace Showcase.Authentication.Core;
 public static class ProtectedResourceConstants
 {
-    public const string DefaultOAuthProtectedResourceRoute = "/.well-known/oauth-protected-resource/{resource}";
+    public const string DefaultOAuthProtectedResourcePathSuffix = "/.well-known/oauth-protected-resource";
     
-    public const string JsonWebKeySetRoute = "/.well-known/jwks";
+    public const string JsonWebKeySetPathSuffix = "/.well-known/jwks";
 
     public static class WWWAuthenticateKeys
     {

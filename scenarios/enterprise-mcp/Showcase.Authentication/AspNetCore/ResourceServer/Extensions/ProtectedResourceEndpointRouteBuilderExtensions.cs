@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Showcase.Authentication.AspNetCore.ResourceServer.Services;
+using Showcase.Authentication.AspNetCore.ResourceServer.Authentication;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;

@@ -22,35 +22,38 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Showcase.Authentication.AspNetCore.ResourceServer.Services;
+namespace Showcase.Authentication.AspNetCore.ResourceServer.Authentication;
 
 public class ProtectedResourceMetadataProvider : IProtectedResourceMetadataProvider
 {
     private readonly IOptionsMonitor<ProtectedResourceOptions> _optionsMonitor;
     private readonly IOptionsMonitor<ProtectedResourceMetadata> _metadataMonitor;
     private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
-    private readonly IProtectedResourceIssuer _protectedResourceIssuer;
+    private readonly ISignedProtectedResourceIssuer? _protectedResourceIssuer;
     private readonly IEnumerable<NamedService<ProtectedResourceService>> _protectedResourceServiceRegistry;
+    private readonly string? _hostedResource;
 
     public ProtectedResourceMetadataProvider(
         IOptionsMonitor<ProtectedResourceOptions> optionsMonitor,
         IOptionsMonitor<ProtectedResourceMetadata> metadataMonitor,
-        IProtectedResourceIssuer protectedResourceIssuer,
-        IEnumerable<NamedService<ProtectedResourceService>> protectedResourceServiceRegistry) 
+        IEnumerable<NamedService<ProtectedResourceService>> protectedResourceServiceRegistry,
+        [ServiceKey] string? serviceKeyName = null,
+        ISignedProtectedResourceIssuer? protectedResourceIssuer = null) 
     {
         _optionsMonitor = optionsMonitor;
         _metadataMonitor = metadataMonitor;
         _protectedResourceIssuer = protectedResourceIssuer;
         _protectedResourceServiceRegistry = protectedResourceServiceRegistry;
+        _hostedResource = serviceKeyName; // Use the service key name as the hosted resource if provided
     }
 
 
-    public Task<ProtectedResourceMetadata> GetProtectedResourceMetadataAsync(string? hostedResource = null)
+    public Task<ProtectedResourceMetadata> GetProtectedResourceMetadataAsync()
     {
-        var metadata = _metadataMonitor.GetKeyedOrCurrent(hostedResource);
+        var metadata = _metadataMonitor.GetKeyedOrCurrent(_hostedResource);
         if (metadata == null)
         {
-            throw new InvalidOperationException($"Protected resource metadata not found for hosted resource '{hostedResource}'.");
+            throw new InvalidOperationException($"Protected resource metadata not found for hosted resource '{_hostedResource}'.");
         }
         return Task.FromResult(metadata);
     }
@@ -64,7 +67,7 @@ public class ProtectedResourceMetadataProvider : IProtectedResourceMetadataProvi
             throw new InvalidOperationException($"Protected resource options not found for hosted resource '{hostedResource}'.");
         }
 
-        return Task.FromResult($"{options.}/{options.OAuthProtectedResourceRoute}");
+        return Task.FromResult($"{options.}/{options.ProtectedMetadataDiscoveryUri}");
     }
 
     public Task<string> GetWwwAuthenticateHeaderAsync(HttpContext context, string? authenticationScheme = JwtBearerDefaults.AuthenticationScheme)

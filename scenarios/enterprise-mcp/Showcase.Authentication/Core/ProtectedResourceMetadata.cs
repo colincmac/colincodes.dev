@@ -17,31 +17,13 @@ namespace Showcase.Authentication.Core;
 public class ProtectedResourceMetadata
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="ProtectedResourceMetadata"/> class.
-    /// </summary>
-    public ProtectedResourceMetadata()
-    {
-        AuthorizationServers = [];
-        BearerMethodsSupported = [];
-        ScopesSupported = [];
-    }
-
-    //[JsonIgnore]
-    //public ProtectedResourceOptions Options { get; init; } = new ProtectedResourceOptions();
-
-    //public List<AuthenticationScheme> AuthenticationSchemes => [
-    //    new AuthenticationScheme(JwtBearerDefaults.AuthenticationScheme, JwtBearerDefaults.AuthenticationScheme, typeof(JwtBearerHandler)),
-    //    new AuthenticationScheme(DpopAuthenticationDefaults.AuthenticationScheme, DpopAuthenticationDefaults.AuthenticationScheme, typeof(DpopAuthenticationHandler))
-    //];
-
-    /// <summary>
     /// The resource URI.
     /// </summary>
     /// <remarks>
     /// REQUIRED. The protected resource's resource identifier.
     /// </remarks>
     [JsonPropertyName("resource")]
-    public required Uri Resource { get; init; }
+    public Uri? Resource { get; set; }
 
     /// <summary>
     /// The list of authorization server URIs.
@@ -51,7 +33,7 @@ public class ProtectedResourceMetadata
     /// for authorization servers that can be used with this protected resource.
     /// </remarks>
     [JsonPropertyName("authorization_servers")]
-    public List<Uri> AuthorizationServers { get; set; }
+    public List<Uri> AuthorizationServers { get; set; } = [];
 
     /// <summary>
     /// The supported bearer token methods.
@@ -71,7 +53,7 @@ public class ProtectedResourceMetadata
     /// requests to request access to this protected resource.
     /// </remarks>
     [JsonPropertyName("scopes_supported")]
-    public List<string> ScopesSupported { get; set; }
+    public List<string> ScopesSupported { get; set; } = [];
 
     /// <summary>
     /// URL of the protected resource's JSON Web Key (JWK) Set document.
@@ -138,7 +120,7 @@ public class ProtectedResourceMetadata
     /// OPTIONAL. If omitted, the default value is false.
     /// </remarks>
     [JsonPropertyName("tls_client_certificate_bound_access_tokens")]
-    public bool? TlsClientCertificateBoundAccessTokens { get; set; }
+    public bool? TlsClientCertificateBoundAccessTokens { get; set; } = false;
 
     /// <summary>
     /// List of the authorization details type values supported by the resource server.

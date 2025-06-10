@@ -2,8 +2,8 @@
 using Microsoft.Extensions.Options;
 
 
-namespace Showcase.Authentication.AspNetCore.ResourceServer.Services;
-internal sealed class ConfigureJwtBearerOptions(ProtectedResourceJwtBearerEvents bearerEvents) : IPostConfigureOptions<JwtBearerOptions>
+namespace Showcase.Authentication.AspNetCore.ResourceServer.Authentication;
+internal sealed class ConfigureJwtBearerOptions(ProtectedResourceJwtBearerEvents protectedResourceEvents) : IPostConfigureOptions<JwtBearerOptions>
 {
     public string? Scheme { get; set; }
 
@@ -12,8 +12,8 @@ internal sealed class ConfigureJwtBearerOptions(ProtectedResourceJwtBearerEvents
         if (Scheme == name)
         {
             options.Events ??= new JwtBearerEvents();
-            options.Events.OnChallenge = CreateChallengeCallback(options.Events.OnChallenge, bearerEvents);
-
+            options.Events.OnChallenge = CreateChallengeCallback(options.Events.OnChallenge, protectedResourceEvents);
+        
         }
     }
 
