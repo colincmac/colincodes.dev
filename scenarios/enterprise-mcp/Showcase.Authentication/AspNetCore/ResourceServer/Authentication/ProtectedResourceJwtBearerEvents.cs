@@ -39,14 +39,14 @@ internal class ProtectedResourceJwtBearerEvents
         }
 
         // This URI needs to match "<resource-host>/<default-resource-discovery-endpoint>/<optional-hosted-resource>". It's up to the client to verify whether these match.
-        Uri resourceMetadataUri = options.ProtectedMetadataDiscoveryUri switch
+        Uri resourceMetadataUri = options.ProtectedMetadataAddress switch
         {
-            { IsAbsoluteUri: true } => options.ProtectedMetadataDiscoveryUri, // If the path is absolute, use it directly
-            _ => new Uri(GetBaseRequestUri(context.Request), options.ProtectedMetadataDiscoveryUri)
+            { IsAbsoluteUri: true } => options.ProtectedMetadataAddress, // If the path is absolute, use it directly
+            _ => new Uri(GetBaseRequestUri(context.Request), options.ProtectedMetadataAddress)
         };
 
         _logger.LogDebug("Adding Protected Metadata to Challenge header for scheme: {Scheme}", context.Scheme.Name);
-        var resourceUrl = options.ProtectedMetadataDiscoveryUri.IsAbsoluteUri;
+        var resourceUrl = options.ProtectedMetadataAddress.IsAbsoluteUri;
         var hostedResourcePath = options.HostedResourcePath;
         
         if(Uri.TryCreate(host, UriKind.Absolute, out var resourceHostUri) && hostedResourcePath != null)

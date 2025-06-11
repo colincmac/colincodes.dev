@@ -14,5 +14,5 @@ public interface ISignedProtectedResourceIssuer
 
     Task<JsonWebKeySet> GetJwksDocumentAsync(CancellationToken cancellationToken = default);
 
-    Task<string> GetSignedProtectedMetadataAsync(ProtectedResourceMetadata metadata, CancellationToken cancellationToken = default);
+    Task<ProtectedResourceMetadata> GetSignedProtectedMetadataAsync(ProtectedResourceMetadata metadata, CancellationToken cancellationToken = default);
 }

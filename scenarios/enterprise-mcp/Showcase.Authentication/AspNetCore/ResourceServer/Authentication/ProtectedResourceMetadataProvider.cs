@@ -67,7 +67,7 @@ public class ProtectedResourceMetadataProvider : IProtectedResourceMetadataProvi
             throw new InvalidOperationException($"Protected resource options not found for hosted resource '{hostedResource}'.");
         }
 
-        return Task.FromResult($"{options.}/{options.ProtectedMetadataDiscoveryUri}");
+        return Task.FromResult($"{options.}/{options.ProtectedMetadataAddress}");
     }
 
     public Task<string> GetWwwAuthenticateHeaderAsync(HttpContext context, string? authenticationScheme = JwtBearerDefaults.AuthenticationScheme)

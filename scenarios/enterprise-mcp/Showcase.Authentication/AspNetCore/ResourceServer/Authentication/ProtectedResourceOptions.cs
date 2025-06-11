@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using Azure.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Protocols;
 using Showcase.Authentication.Core;
 using System;
 using System.Collections.Generic;
@@ -18,14 +19,16 @@ namespace Showcase.Authentication.AspNetCore.ResourceServer.Authentication;
 public sealed class ProtectedResourceOptions
 {
 
-    public Uri? ResourceHost { get; set; } = null;
-    public string? HostedResourcePath { get; set; }
+    //public Uri? ResourceHost { get; set; } = null;
+    //public string? HostedResourcePath { get; set; }
 
-    public ProtectedResourceMetadata Metadata { get; set; } = new ProtectedResourceMetadata();
+    public ProtectedResourceMetadata? Metadata { get; set; }
 
-    public Uri ProtectedMetadataDiscoveryUri { get; set; } = new Uri(ProtectedResourceConstants.DefaultOAuthProtectedResourcePathSuffix, UriKind.Relative);
+    public Uri ProtectedMetadataAddress { get; set; } = new Uri(ProtectedResourceConstants.DefaultOAuthProtectedResourcePathSuffix, UriKind.Relative);
 
-    public Uri JsonWebKeySetEndpointUri { get; set; } = new Uri(ProtectedResourceConstants.JsonWebKeySetPathSuffix, UriKind.Relative);
+    public Uri JwksDocumentAddress { get; set; } = new Uri(ProtectedResourceConstants.JsonWebKeySetPathSuffix, UriKind.Relative);
+
+    public bool RequireHttpsMetadata { get; set; } = true;
 
     #region Signed Protected Resource Metadata Section
     public string? SigningKeyVaultUri { get; set; }
@@ -67,12 +70,12 @@ public static class ProtectedResourceOptionsExtensions
     {
         var discoveryUri = options switch
         {
-            { ProtectedMetadataDiscoveryUri.IsAbsoluteUri: true } => options.ProtectedMetadataDiscoveryUri, // If the path is absolute, use it directly
+            { ProtectedMetadataAddress.IsAbsoluteUri: true } => options.ProtectedMetadataAddress, // If the path is absolute, use it directly
 
             // Try to get the metadata document URI from defined resource host and optional hosted resource path
             // Resource Host needs to be absolute
-            { ResourceHost: { }, HostedResourcePath: null } => new Uri(options.ResourceHost, options.ProtectedMetadataDiscoveryUri),
-            { ResourceHost: { } } => new Uri(options.ResourceHost, $"{options.ProtectedMetadataDiscoveryUri}/{options.HostedResourcePath}"), // If the resource host is absolute and the hosted resource path is provided, combine them
+            { ResourceHost: { }, HostedResourcePath: null } => new Uri(options.ResourceHost, options.ProtectedMetadataAddress),
+            { ResourceHost: { } } => new Uri(options.ResourceHost, $"{options.ProtectedMetadataAddress}/{options.HostedResourcePath}"), // If the resource host is absolute and the hosted resource path is provided, combine them
             _ => null // If neither is set, return null
         };
         return discoveryUri;

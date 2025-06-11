@@ -4,6 +4,7 @@ using Azure.Identity;
 using Azure.Security.KeyVault.Keys;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Azure;
@@ -21,11 +22,16 @@ using static System.Net.Mime.MediaTypeNames;
 namespace Showcase.Authentication.AspNetCore.ResourceServer.Extensions;
 public static class AuthenticationBuilderExtensions
 {
-    
-    public static AuthenticationBuilder AddProtectedResourcesToScheme(
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="builder">The Authentication Builder</param>
+    /// <param name="configurationSection">The configuration section containing a list of key value pairs, with the format schemeName:optionsObject </param>
+    /// <param name="configureOptions">Optional delegate to configure all of the protected resource options</param>
+    /// <returns>The updated AuthenticationBuilder</returns>
+    public static AuthenticationBuilder AddProtectedResources(
         this AuthenticationBuilder builder,
         IConfigurationSection configurationSection,
-        string authenticationScheme = JwtBearerDefaults.AuthenticationScheme,
         Action<ProtectedResourceOptions>? configureOptions = null)
     {
         Dictionary<string, ProtectedResourceOptions> options = configurationSection.Get<Dictionary<string, ProtectedResourceOptions>>()
@@ -34,15 +40,44 @@ public static class AuthenticationBuilderExtensions
         {
             configureOptions?.Invoke(hostedResourceOptions);
             ArgumentNullException.ThrowIfNull(hostedResourceOptions);
-            builder.AddProtectedResourceToScheme(authenticationScheme, (opt) => opt = hostedResourceOptions);
+            builder.AddProtectedResourceToScheme((opt) => opt = hostedResourceOptions, schemeName);
         }
         return builder;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="builder">The Authentication Builder</param>
+    /// <param name="configurationSection">The configuration section with the protected resource options</param>
+    /// <param name="authenticationScheme">The authentication scheme to use for the defined protected resource</param>
+    /// <param name="configureOptions">Optional delegate to configure the defined protected resource</param>
+    /// <returns>The updated AuthenticationBuilder</returns>
+    /// <remarks></remarks>
+    public static AuthenticationBuilder AddProtectedResourceToScheme(
+    this AuthenticationBuilder builder,
+    IConfigurationSection configurationSection,
+    string authenticationScheme = JwtBearerDefaults.AuthenticationScheme,
+    Action<ProtectedResourceOptions>? configureOptions = null)
+    {
+        var options = configurationSection.Get<ProtectedResourceOptions>();
+        if (options is null) throw new ArgumentNullException(nameof(options), $"Could not retrieve options from configuration path {configurationSection.Path}.");
+        configureOptions?.Invoke(options);
+        
+        return AddProtectedResourceToScheme(builder, opt => opt = options, authenticationScheme); ;
+    }
+
+    /// <summary>
+    /// Configures the authentication builder to add a protected resource to the specified authentication scheme. Values not provided in the options will be derived from the authentication scheme's configuration.
+    /// </summary>
+    /// <param name="builder">The Authentication Builder</param>
+    /// <param name="configureOptions">Optional delegate to configure the defined protected resource</param>
+    /// <param name="authenticationScheme">The authentication scheme to use for the defined protected resource</param>
+    /// <returns>The updated AuthenticationBuilder</returns>
     private static AuthenticationBuilder AddProtectedResourceToScheme(
         this AuthenticationBuilder builder,
-        string authenticationScheme = JwtBearerDefaults.AuthenticationScheme,
-        Action<ProtectedResourceOptions> configureOptions
+        Action<ProtectedResourceOptions> configureOptions,
+        string authenticationScheme = JwtBearerDefaults.AuthenticationScheme
         )
     {
 
@@ -57,12 +92,11 @@ public static class AuthenticationBuilderExtensions
         });
 
         builder.Services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>, ConfigureJwtBearerOptions>();
+        builder.Services.AddSingleton<IPostConfigureOptions<ProtectedResourceOptions>, ConfigureProtectedResourceOptions>();
 
         // Configure the options for the protected resource. This is either the host itself or a hosted resource on the server
         // e.g. `https://example.com` or `https://example.com/hostedResourceName`.
         // We're not adding additional schemes, just extending an existing one to include protected resource metadata.
-
-        //var hostedResourceOptionsKey = $"{authenticationScheme}-{hostedResource}".TrimEnd('-');
 
         // Configure Options
         builder.Services.AddOptions<ProtectedResourceOptions>(authenticationScheme)
@@ -70,24 +104,30 @@ public static class AuthenticationBuilderExtensions
             {
                 configureOptions(protectedResourceOptions);
                 var jwtOptions = jwtOptionsMonitor.Get(authenticationScheme);
-                Uri t = new Uri()
+
+                protectedResourceOptions.Metadata ??= new ProtectedResourceMetadata(); // Ensure metadata is initialized
+
                 // Add the schemes authorization servers if not already set
-                if (protectedResourceOptions.Metadata.AuthorizationServers.Count == 0 && !string.IsNullOrEmpty(jwtOptions.Authority))
+                if (protectedResourceOptions.Metadata.AuthorizationServers?.Count == 0 && !string.IsNullOrEmpty(jwtOptions.Authority))
                 {
                     protectedResourceOptions.Metadata.AuthorizationServers.Add(new Uri(jwtOptions.Authority));
                 }
 
                 // Add the schemes scopes if not already set
-                if (protectedResourceOptions.Metadata.ScopesSupported.Count == 0 && jwtOptions.Configuration?.ScopesSupported != null)
+                if (protectedResourceOptions.Metadata.ScopesSupported?.Count == 0 && jwtOptions.Configuration?.ScopesSupported != null)
                 {
                     protectedResourceOptions.Metadata.ScopesSupported.AddRange(jwtOptions.Configuration.ScopesSupported);
                 }
 
-                if(protectedResourceOptions.ProtectedMetadataDiscoveryUri.)
+                // If the resource host is not set, try to derive it from the JWT options audience
+                // The Resource URI should be absolute and use HTTPS. Audience values have a `api://` scheme by default.
+                if (protectedResourceOptions.Metadata.Resource == null 
+                    && Uri.TryCreate(jwtOptions.Audience, UriKind.Absolute, out var resultUri)
+                    && resultUri.Scheme == Uri.UriSchemeHttps)
                 {
-                    // Set the resource metadata URI based on the scheme and options
-                    protectedResourceOptions.Metadata.ResourceMetadataUri = new Uri($"{jwtOptions.Authority?.TrimEnd('/')}/{protectedResourceOptions.ProtectedMetadataDiscoveryUri.TrimStart('/')}");
+                    protectedResourceOptions.Metadata.Resource = resultUri;
                 }
+
                 ConfigureMetadataSigningServices(builder.Services, protectedResourceOptions, authenticationScheme);
             });
 
@@ -116,7 +156,6 @@ public static class AuthenticationBuilderExtensions
             builder.AddKeyClient(vaultUri).WithName(hostedResource);
             builder.AddCryptographyClient(vaultUri).WithName(hostedResource);
             builder.UseCredential(options.AzureTokenCredential);
-
         });
         
         return services;

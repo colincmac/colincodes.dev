@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Showcase.Authentication.Core;
 /// <summary>
@@ -16,6 +17,7 @@ namespace Showcase.Authentication.Core;
 /// </summary>
 public class ProtectedResourceMetadata
 {
+
     /// <summary>
     /// The resource URI.
     /// </summary>
@@ -33,17 +35,17 @@ public class ProtectedResourceMetadata
     /// for authorization servers that can be used with this protected resource.
     /// </remarks>
     [JsonPropertyName("authorization_servers")]
-    public List<Uri> AuthorizationServers { get; set; } = [];
+    public List<Uri>? AuthorizationServers { get; set; }
 
     /// <summary>
     /// The supported bearer token methods.
     /// </summary>
     /// <remarks>
     /// OPTIONAL. JSON array containing a list of the supported methods of sending an OAuth 2.0 bearer token
-    /// to the protected resource. Defined values are ["header", "body", "query"].
+    /// to the protected resource. Defined values are ["header", "body", "query"]. Default value is ["header"].
     /// </remarks>
     [JsonPropertyName("bearer_methods_supported")]
-    public List<string> BearerMethodsSupported { get; set; } = ["header"];
+    public List<string>? BearerMethodsSupported { get; set; }
 
     /// <summary>
     /// The supported scopes.
@@ -53,7 +55,7 @@ public class ProtectedResourceMetadata
     /// requests to request access to this protected resource.
     /// </remarks>
     [JsonPropertyName("scopes_supported")]
-    public List<string> ScopesSupported { get; set; } = [];
+    public List<string>? ScopesSupported { get; set; }
 
     /// <summary>
     /// URL of the protected resource's JSON Web Key (JWK) Set document.
@@ -151,6 +153,13 @@ public class ProtectedResourceMetadata
     [JsonPropertyName("dpop_bound_access_tokens_required")]
     public bool? DpopBoundAccessTokensRequired { get; set; }
 
+    /// <summary>
+    /// A JWT containing metadata parameters about the protected resource as claims. This is a string value consisting of the entire signed
+    /// JWT. A signed_metadata parameter SHOULD NOT appear as a claim in the JWT; it is RECOMMENDED to reject any metadata in which this occurs.
+    /// </summary>
+    /// <remarks>
+    /// OPTIONAL. Contains signed metadata related to the protected resource.
+    /// </remarks>
     [JsonPropertyName("signed_metadata")]
     public string? SignedMetadata { get; set; }
 }
