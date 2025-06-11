@@ -21,37 +21,29 @@ using JwtHeaderParameterNames = Microsoft.IdentityModel.JsonWebTokens.JwtHeaderP
 namespace Showcase.Authentication.AspNetCore.ResourceServer.Authentication;
 public class AzureKeyVaultProtectedResourceIssuer : ISignedProtectedResourceIssuer
 {
+    private string? _serviceKey;
     private readonly KeyClient _keyClient;
-    private readonly CryptographyClient _cryptographyClient;
+    private KeyVaultKey? _keyVaultKey;
     private JsonWebKeySet? _jwksDocument;
-    private DateTimeOffset keyExpiration = DateTimeOffset.UtcNow;
-
-    private readonly string _keyName;
-    private readonly string? _keyVersion = null;
+    IOptionsMonitor<ProtectedResourceOptions> _optionsMonitor;
 
     public AzureKeyVaultProtectedResourceIssuer(IAzureClientFactory<KeyClient> keyClientFactory, IOptionsMonitor<ProtectedResourceOptions> optionsMonitor, [ServiceKey] string serviceKeyName)
     {
-        var options = optionsMonitor.GetKeyedOrCurrent(serviceKeyName);
+        _optionsMonitor = optionsMonitor;
+        _serviceKey = serviceKeyName;
         _keyClient = keyClientFactory.CreateClient(serviceKeyName);
-        _cryptographyClient = _keyClient.GetCryptographyClient(options.SigningKeyName, options.SigningKeyObjectVersion);
-        _keyName = options.SigningKeyName ?? throw new ArgumentNullException(nameof(options.SigningKeyName), "Signing key name must be provided for Azure Key Vault issuer.");
-        _keyVersion = options.SigningKeyObjectVersion; // Optional, can be null if the latest version is desired
     }
+
     public async Task<JsonWebKeySet> GetJwksDocumentAsync(CancellationToken cancellationToken = default)
     {
-        if (DateTimeOffset.UtcNow < keyExpiration && _jwksDocument is not null && _jwksDocument.Keys.Any()) return _jwksDocument;
+        var keyVaultKey = await GetOrSetKeyVaultKeyAsync(cancellationToken);
 
-        KeyVaultKey keyVaultKey = await _keyClient.GetKeyAsync(_keyName, _keyVersion, cancellationToken);
+        if (keyVaultKey.Properties.ExpiresOn?.UtcDateTime > DateTime.UtcNow 
+            && _jwksDocument is not null 
+            && _jwksDocument.Keys.Any()) return _jwksDocument;
 
-        keyVaultKey.
-        if (keyVaultKey is null || keyVaultKey.Properties.ExpiresOn < DateTimeOffset.UtcNow)
-        {
-            throw new InvalidOperationException($"Key '{_keyName}' is expired or not found in Key Vault {_keyClient.VaultUri}.");
-        }
 
-        keyExpiration = keyVaultKey.Properties.ExpiresOn ?? DateTimeOffset.UtcNow.AddDays(1);
-
-        var rsa = keyVaultKey.Key.ToRSA(includePrivateParameters: false);
+        //var rsa = keyVaultKey.Key.ToRSA(includePrivateParameters: false);
         //var jwk = JsonWebKeyConverter.ConvertFromRSASecurityKey(new RsaSecurityKey(rsa));
 
         _jwksDocument = new JsonWebKeySet(JsonSerializer.Serialize(new[] { keyVaultKey.Key }));
@@ -61,40 +53,45 @@ public class AzureKeyVaultProtectedResourceIssuer : ISignedProtectedResourceIssu
 
     public async Task<ProtectedResourceMetadata> GetSignedProtectedMetadataAsync(ProtectedResourceMetadata metadata, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(metadata.Resource, "Protected resource metadata cannot be null.");
 
-        var metadataResource = metadata.Resource?.ToString();
-        var jsonPayload = JsonSerializer.SerializeToDocument(metadata) ?? throw new InvalidOperationException("Metadata payload cannot be null.");
+        var options = _optionsMonitor.GetKeyedOrCurrent(_serviceKey);
+        var cryptoClient = _keyClient.GetCryptographyClient(options.SigningKeyName, options.SigningKeyObjectVersion);
+        var key = await GetOrSetKeyVaultKeyAsync(cancellationToken);
 
-
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = _jwksDocument?.Keys.First();
+        var metadataResource = metadata.Resource.ToString();
+        var claims = metadata.ToClaimsViaJson();
         var header = new JwtHeader
         {
             { JwtHeaderParameterNames.Typ, JwtConstants.HeaderType },
-            { JwtHeaderParameterNames.Alg, SecurityAlgorithms.RsaSha512 }
+            { JwtHeaderParameterNames.Alg, options.SigningAlgorithm }
         };
 
-        var securityToken = tokenHandler.CreateJwtSecurityToken(new SecurityTokenDescriptor
-            {
-                Issuer = metadataResource,
-                Audience = null, // Audience can be set if needed
-                NotBefore = DateTime.UtcNow,
-                Expires = keyExpiration?.UtcDateTime ?? DateTime.UtcNow.AddDays(1), // Default expiration if not set
-                IssuedAt = DateTime.UtcNow,
-                TokenType = JwtConstants.TokenType,
-                SigningCredentials = _signingCredentials,
-                Claims = jsonPayload.RootElement.EnumerateObject().ToDictionary(c => c.Name, c => (object)c.Value.ToString()),
-        });
+        var payload = new JwtPayload(
+            issuer: metadataResource, 
+            audience: metadataResource, 
+            claims: claims, 
+            notBefore: DateTime.UtcNow, 
+            expires: key.Properties.ExpiresOn?.UtcDateTime ?? DateTime.UtcNow.AddDays(1), 
+            issuedAt: DateTime.UtcNow);
 
-        var unsignedTokenData = securityToken.EncodedHeader + "." + securityToken.EncodedPayload;
+        var unsignedTokenData = header.Base64UrlEncode() + "." + payload.Base64UrlEncode();
         
-        var signResult = await _cryptographyClient.SignDataAsync(SignatureAlgorithm.RS512, Encoding.UTF8.GetBytes(unsignedTokenData), cancellationToken: cancellationToken);
-        var signature = signResult.Signature;
-        return $"{unsignedTokenData}.{Base64UrlEncoder.Encode(signature)}";
+        var signResult = await _cryptographyClient.SignDataAsync(options.SigningAlgorithm, Encoding.UTF8.GetBytes(unsignedTokenData), cancellationToken: cancellationToken);
+        var tokenValue = unsignedTokenData + "." + Base64UrlEncoder.Encode(signResult.Signature);
+
+        metadata.SignedMetadata = tokenValue;
+        return metadata;
     }
 
-    public Task<string> GetSignedProtectedMetadataAsync(ProtectedResourceMetadata metadata, CancellationToken? cancellationToken)
+    private async Task<KeyVaultKey> GetOrSetKeyVaultKeyAsync(CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        if (_keyVaultKey is not null && _keyVaultKey.Properties.ExpiresOn > DateTime.UtcNow) return _keyVaultKey;
+
+        var options = _optionsMonitor.GetKeyedOrCurrent(_serviceKey);
+
+        KeyVaultKey keyVaultKey = await _keyClient.GetKeyAsync(options.SigningKeyName, options.SigningKeyObjectVersion, cancellationToken);
+        return _keyVaultKey ??= keyVaultKey;
     }
+
 }

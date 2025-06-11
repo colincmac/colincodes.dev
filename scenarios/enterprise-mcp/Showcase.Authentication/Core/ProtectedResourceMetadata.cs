@@ -17,7 +17,6 @@ namespace Showcase.Authentication.Core;
 /// </summary>
 public class ProtectedResourceMetadata
 {
-
     /// <summary>
     /// The resource URI.
     /// </summary>
@@ -25,7 +24,8 @@ public class ProtectedResourceMetadata
     /// REQUIRED. The protected resource's resource identifier.
     /// </remarks>
     [JsonPropertyName("resource")]
-    public Uri? Resource { get; set; }
+    public required Uri Resource { get; set; }
+
 
     /// <summary>
     /// The list of authorization server URIs.
@@ -162,4 +162,5 @@ public class ProtectedResourceMetadata
     /// </remarks>
     [JsonPropertyName("signed_metadata")]
     public string? SignedMetadata { get; set; }
+
 }

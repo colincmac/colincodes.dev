@@ -11,8 +11,6 @@ namespace Showcase.Authentication.AspNetCore.ResourceServer.Authentication;
 
 public interface IProtectedResourceMetadataProvider
 {
-    public Task<ProtectedResourceMetadata> GetProtectedResourceMetadataAsync(CancellationToken? cancellationToken = default);
+    public Task<ProtectedResourceMetadata> GetProtectedResourceMetadataAsync(Uri? resourceUri = null, CancellationToken? cancellationToken = default);
     public Task<JsonWebKeySet> GetJwksDocumentAsync(CancellationToken? cancellationToken = default);
-    public Task<string> GetSignedProtectedMetadataAsync(CancellationToken? cancellationToken = default);
-    public Task<HeaderDictionary> GetWwwAuthenticateHeadersAsync(CancellationToken? cancellationToken = default);
 }

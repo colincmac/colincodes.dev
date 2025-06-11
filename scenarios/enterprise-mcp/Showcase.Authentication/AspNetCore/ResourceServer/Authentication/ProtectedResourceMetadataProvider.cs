@@ -67,7 +67,7 @@ public class ProtectedResourceMetadataProvider : IProtectedResourceMetadataProvi
             throw new InvalidOperationException($"Protected resource options not found for hosted resource '{hostedResource}'.");
         }
 
-        return Task.FromResult($"{options.}/{options.ProtectedMetadataAddress}");
+        return Task.FromResult(new Uri(""));
     }
 
     public Task<string> GetWwwAuthenticateHeaderAsync(HttpContext context, string? authenticationScheme = JwtBearerDefaults.AuthenticationScheme)
@@ -95,6 +95,26 @@ public class ProtectedResourceMetadataProvider : IProtectedResourceMetadataProvi
         // This type tracks registered resource names.
         // See https://github.com/dotnet/runtime/issues/100105 for more info.
         return _protectedResourceServiceRegistry.Select(resService => resService.Name);
+    }
+
+    public Task<ProtectedResourceMetadata> GetProtectedResourceMetadataAsync(CancellationToken? cancellationToken = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<JsonWebKeySet> GetJwksDocumentAsync(CancellationToken? cancellationToken = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<string> GetSignedProtectedMetadataAsync(CancellationToken? cancellationToken = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<HeaderDictionary> GetWwwAuthenticateHeadersAsync(CancellationToken? cancellationToken = null)
+    {
+        throw new NotImplementedException();
     }
 }
 

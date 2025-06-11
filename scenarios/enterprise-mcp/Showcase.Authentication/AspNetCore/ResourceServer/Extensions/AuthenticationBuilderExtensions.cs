@@ -105,8 +105,6 @@ public static class AuthenticationBuilderExtensions
                 configureOptions(protectedResourceOptions);
                 var jwtOptions = jwtOptionsMonitor.Get(authenticationScheme);
 
-                protectedResourceOptions.Metadata ??= new ProtectedResourceMetadata(); // Ensure metadata is initialized
-
                 // Add the schemes authorization servers if not already set
                 if (protectedResourceOptions.Metadata.AuthorizationServers?.Count == 0 && !string.IsNullOrEmpty(jwtOptions.Authority))
                 {
@@ -119,19 +117,25 @@ public static class AuthenticationBuilderExtensions
                     protectedResourceOptions.Metadata.ScopesSupported.AddRange(jwtOptions.Configuration.ScopesSupported);
                 }
 
-                // If the resource host is not set, try to derive it from the JWT options audience
-                // The Resource URI should be absolute and use HTTPS. Audience values have a `api://` scheme by default.
-                if (protectedResourceOptions.Metadata.Resource == null 
-                    && Uri.TryCreate(jwtOptions.Audience, UriKind.Absolute, out var resultUri)
-                    && resultUri.Scheme == Uri.UriSchemeHttps)
-                {
-                    protectedResourceOptions.Metadata.Resource = resultUri;
-                }
+
+                ConfigureKnownEndpoints(protectedResourceOptions, protectedResourceOptions.Metadata.Resource);
 
                 ConfigureMetadataSigningServices(builder.Services, protectedResourceOptions, authenticationScheme);
             });
 
         return builder;
+    }
+
+    private static void ConfigureKnownEndpoints(ProtectedResourceOptions options, Uri absoluteHostUri)
+    {
+        // Only setting the known endpoints if the resource is an absolute URI with a host.
+        if (options.Metadata.Resource is { IsAbsoluteUri: false, Host: null }) return;
+
+        if(options.SigningKeyType is not ProtectedResourceMetadataSigningKeyType.None && options.Metadata.JwksUri is null)
+        {
+            // If the JwksUri is not set, derive it from the resource URI and the JwksDocumentPath
+            options.Metadata.JwksUri = new Uri(options.Metadata.Resource, options.JwksDocumentPath);
+        }
     }
 
     #region (Optional) Signed Protected Metadata Section

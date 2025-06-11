@@ -23,8 +23,8 @@ public static class ProtectedResourceAuthorizationExtensions
     {
         services.AddAuthorization();
 
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<AuthorizationOptions>, RequireScopeOptions>());
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IAuthorizationHandler, ScopeAuthorizationHandler>());
+        //services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<AuthorizationOptions>, RequireScopeOptions>());
+        //services.TryAddEnumerable(ServiceDescriptor.Singleton<IAuthorizationHandler, ScopeAuthorizationHandler>());
         return services;
     }
 

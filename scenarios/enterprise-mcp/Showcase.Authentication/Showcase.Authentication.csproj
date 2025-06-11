@@ -17,6 +17,7 @@
 	  <PackageReference Include="Microsoft.Identity.Web" Version="3.9.1" />
 	</ItemGroup>
 	<ItemGroup>
+	  <Folder Include="AspNetCore\ResourceServer\Exceptions\" />
 	  <Folder Include="Client\" />
 	  <Folder Include="Client\" />
 	</ItemGroup>

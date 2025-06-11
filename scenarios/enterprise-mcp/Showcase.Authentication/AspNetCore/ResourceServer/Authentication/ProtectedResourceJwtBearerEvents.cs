@@ -26,50 +26,49 @@ internal class ProtectedResourceJwtBearerEvents
         _logger = logger;
     }
 
-    private static Uri GetBaseRequestUri(HttpRequest request) => new ($"{Uri.UriSchemeHttps}://{request.Host}{request.PathBase}");
+    private static Uri GetBaseRequestUri(HttpRequest request, bool requireHttps) => new ($"{(requireHttps ? Uri.UriSchemeHttps : request.Scheme)}://{request.Host}{request.PathBase}");
 
     public Task Challenge(JwtBearerChallengeContext context)
     {
         var options = _optionsMonitor.Get(context.Scheme.Name);
-
-        if(options == null)
+        
+        if (options == null)
         {
             _logger.LogDebug("No ProtectedResourceOptions found for scheme: {Scheme}. Skipping challenge modification.", context.Scheme.Name);
             return Task.CompletedTask;
         }
 
         // This URI needs to match "<resource-host>/<default-resource-discovery-endpoint>/<optional-hosted-resource>". It's up to the client to verify whether these match.
-        Uri resourceMetadataUri = options.ProtectedMetadataAddress switch
+        Uri resourceMetadataUri = options.ProtectedMetadataPath switch
         {
-            { IsAbsoluteUri: true } => options.ProtectedMetadataAddress, // If the path is absolute, use it directly
-            _ => new Uri(GetBaseRequestUri(context.Request), options.ProtectedMetadataAddress)
+            { IsAbsoluteUri: true } => options.ProtectedMetadataPath, // If the path is absolute, use it directly
+            _ => new Uri(GetBaseRequestUri(context.Request, context.Options.RequireHttpsMetadata), options.ProtectedMetadataPath)
         };
 
         _logger.LogDebug("Adding Protected Metadata to Challenge header for scheme: {Scheme}", context.Scheme.Name);
-        var resourceUrl = options.ProtectedMetadataAddress.IsAbsoluteUri;
-        var hostedResourcePath = options.HostedResourcePath;
         
-        if(Uri.TryCreate(host, UriKind.Absolute, out var resourceHostUri) && hostedResourcePath != null)
-        {
-            // If the resource host is absolute and the hosted resource path is provided, combine them
-            resourceHostUri = new Uri(resourceHostUri, hostedResourcePath);
-        }
-        else if(hostedResourcePath != null)
-        {
-            // If the resource host is not absolute, we assume it's a relative path
-            resourceHostUri = new Uri(GetBaseRequestUri(context.Request), hostedResourcePath);
-        }
+        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
 
 
-        if(!resourceMetadataUri.IsAbsoluteUri)
-        {
-            _logger.LogWarning("The provided well-known endpoint for resource_metadata needs to be absolute. Provided URL: {Path}. This may lead to incorrect resource metadata URI.", resourceMetadataUri);
-        }
-
-        // For example:
         // WWW-Authenticate: Bearer resource_metadata="https://example.com/.well-known/oauth-resource-metadata/<optional-hosted-resource>"
-        var wwwAuthenticateHeaderValue = $"{ProtectedResourceConstants.WWWAuthenticateKeys.UnsignedResourceMetadata}=\"{resourceMetadataUri.ToString()}\"";
-        context.Response.Headers.Append(HeaderNames.WWWAuthenticate, wwwAuthenticateHeaderValue);
+        var stringBuilder = new StringBuilder();
+        // Add the scheme's challenge to the WWW-Authenticate header if not already present
+        if (context.Response.Headers.WWWAuthenticate.Any(header => header?.Contains(context.Options.Challenge) ?? false))
+        {
+            stringBuilder.Append(context.Options.Challenge);
+            if (context.Options.Challenge.IndexOf(' ') > 0)
+            {
+                // Only add a comma after the first param, if any
+                stringBuilder.Append(',');
+            }
+        }
+
+        stringBuilder.Append(" resource_metadata=\"");
+        stringBuilder.Append(resourceMetadataUri);
+        stringBuilder.Append('\"');
+
+        context.Response.Headers.Append(HeaderNames.WWWAuthenticate, stringBuilder.ToString());
+
         return Task.CompletedTask;
     }
 

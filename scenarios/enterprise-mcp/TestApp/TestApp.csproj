@@ -14,6 +14,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\Showcase.Authentication\Showcase.Authentication.csproj" />
 	  <ProjectReference Include="..\Showcase.McpServer.Extensions\Showcase.McpServer.Extensions.csproj" />
 	</ItemGroup>
 </Project>

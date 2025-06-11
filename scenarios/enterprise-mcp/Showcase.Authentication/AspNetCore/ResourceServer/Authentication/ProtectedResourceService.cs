@@ -3,38 +3,42 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Showcase.Authentication.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Showcase.Authentication.AspNetCore.ResourceServer.Authentication;
-public sealed class ProtectedResourceService(
-    IOptionsMonitor<ProtectedResourceMetadata> metadataMonitor, 
-    ISignedProtectedResourceIssuer protectedResourceIssuer, 
-    [ServiceKey] string? hostedResource = null) : IProtectedResourceMetadataProvider
+public sealed class ProtectedResourceService : IProtectedResourceMetadataProvider
 {
-    public ProtectedResourceMetadata ProtectedResourceMetadata => metadataMonitor.GetKeyedOrCurrent(hostedResource);
-    public ProtectedResourceOptions Options => ProtectedResourceMetadata.Options;
-    public string UnsignedWwwAuthenticateHeaderValue => $"{ProtectedResourceConstants.WWWAuthenticateKeys.UnsignedResourceMetadata}=\"{ProtectedResourceMetadata.JwksUri}\"";
+    private readonly IOptionsMonitor<ProtectedResourceOptions> _optionsMonitor;
+    private readonly string? _hostedResource;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ISignedProtectedResourceIssuer? _protectedResourceIssuer;
 
-    public Task<ProtectedResourceMetadata> GetProtectedResourceMetadataAsync(CancellationToken? cancellationToken = default)
+    public ProtectedResourceService(
+        IOptionsMonitor<ProtectedResourceOptions> optionsMonitor,       
+        IHttpContextAccessor httpContextAccessor,
+        ISignedProtectedResourceIssuer? protectedResourceIssuer,
+        [ServiceKey] string? hostedResource = null)
     {
+        _optionsMonitor = optionsMonitor;
+        _httpContextAccessor = httpContextAccessor;
+        _protectedResourceIssuer = protectedResourceIssuer;
+        _hostedResource = hostedResource;
+    }
+
+    public async Task<ProtectedResourceMetadata> GetProtectedResourceMetadataAsync(CancellationToken? cancellationToken = default)
+    {
+        var options = _optionsMonitor.GetKeyedOrCurrent(_hostedResource);
+        options.Metadata.Resource ??= _httpContextAccessor.HttpContext.Request.U
+        if (options.Metadata.Resource is null && _httpContextAccessor.HttpContext is null)
+        {
+            throw new InvalidOperationException("The Resource Metadata `Resource` value must be set statically or provided from the HTTPContext");
+        }
+
+        if (options.Metadata.Resource is null && _httpContextAccessor.HttpContext?.Request.Path is null) 
+            
+
         return Task.FromResult(ProtectedResourceMetadata);
     }
-
-    public Task<JsonWebKeySet> GetJwksDocumentAsync(CancellationToken? cancellationToken = default)
-    {
-        return protectedResourceIssuer.GetJwksDocumentAsync(cancellationToken);
-    }
-
-    public Task<string> GetSignedProtectedMetadataAsync(CancellationToken? cancellationToken = default)
-    {
-        return protectedResourceIssuer.GetSignedProtectedMetadataAsync(ProtectedResourceMetadata, cancellationToken);
-    }
-
-    public Task<HeaderDictionary> GetWwwAuthenticateHeadersAsync(CancellationToken? cancellationToken = default)
+    public Task<JsonWebKeySet> GetJwksDocumentAsync(CancellationToken? cancellationToken = null)
     {
         throw new NotImplementedException();
     }
