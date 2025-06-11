@@ -8,6 +8,7 @@
   </PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Azure.Security.KeyVault.Keys" Version="4.8.0-beta.1" />
 		<PackageReference Include="Microsoft.Identity.Client" Version="4.73.0-preview" />
 		<PackageReference Include="ModelContextProtocol" Version="0.2.0-preview.1" />
 	</ItemGroup>

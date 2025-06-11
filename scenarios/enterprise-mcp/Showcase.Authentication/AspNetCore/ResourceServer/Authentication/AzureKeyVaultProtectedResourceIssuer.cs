@@ -43,7 +43,7 @@ public class AzureKeyVaultProtectedResourceIssuer : ISignedProtectedResourceIssu
 
         KeyVaultKey keyVaultKey = await _keyClient.GetKeyAsync(_keyName, _keyVersion, cancellationToken);
 
-
+        keyVaultKey.
         if (keyVaultKey is null || keyVaultKey.Properties.ExpiresOn < DateTimeOffset.UtcNow)
         {
             throw new InvalidOperationException($"Key '{_keyName}' is expired or not found in Key Vault {_keyClient.VaultUri}.");
@@ -51,7 +51,7 @@ public class AzureKeyVaultProtectedResourceIssuer : ISignedProtectedResourceIssu
 
         keyExpiration = keyVaultKey.Properties.ExpiresOn ?? DateTimeOffset.UtcNow.AddDays(1);
 
-        //var rsa = keyVaultKey.Key.ToRSA(includePrivateParameters: false);
+        var rsa = keyVaultKey.Key.ToRSA(includePrivateParameters: false);
         //var jwk = JsonWebKeyConverter.ConvertFromRSASecurityKey(new RsaSecurityKey(rsa));
 
         _jwksDocument = new JsonWebKeySet(JsonSerializer.Serialize(new[] { keyVaultKey.Key }));
@@ -61,19 +61,19 @@ public class AzureKeyVaultProtectedResourceIssuer : ISignedProtectedResourceIssu
 
     public async Task<ProtectedResourceMetadata> GetSignedProtectedMetadataAsync(ProtectedResourceMetadata metadata, CancellationToken cancellationToken = default)
     {
-        var certClient = new CertificateClient(_keyClient.VaultUri, new DefaultAzureCredential());
-        var cert = certClient.GetCertificate("");
-        cert.Value.
+
         var metadataResource = metadata.Resource?.ToString();
         var jsonPayload = JsonSerializer.SerializeToDocument(metadata) ?? throw new InvalidOperationException("Metadata payload cannot be null.");
+
+
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = _jwksDocument.Keys.First();
-        key.
+        var key = _jwksDocument?.Keys.First();
         var header = new JwtHeader
         {
             { JwtHeaderParameterNames.Typ, JwtConstants.HeaderType },
-            { JwtHeaderParameterNames.Alg, _signingCredentials.Algorithm }
+            { JwtHeaderParameterNames.Alg, SecurityAlgorithms.RsaSha512 }
         };
+
         var securityToken = tokenHandler.CreateJwtSecurityToken(new SecurityTokenDescriptor
             {
                 Issuer = metadataResource,
@@ -88,7 +88,7 @@ public class AzureKeyVaultProtectedResourceIssuer : ISignedProtectedResourceIssu
 
         var unsignedTokenData = securityToken.EncodedHeader + "." + securityToken.EncodedPayload;
         
-        var signResult = await _cryptographyClient.SignDataAsync(SignatureAlgorithm.RS256, Encoding.UTF8.GetBytes(unsignedTokenData), cancellationToken: cancellationToken);
+        var signResult = await _cryptographyClient.SignDataAsync(SignatureAlgorithm.RS512, Encoding.UTF8.GetBytes(unsignedTokenData), cancellationToken: cancellationToken);
         var signature = signResult.Signature;
         return $"{unsignedTokenData}.{Base64UrlEncoder.Encode(signature)}";
     }

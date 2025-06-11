@@ -2,6 +2,7 @@
 using Azure.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Tokens;
 using Showcase.Authentication.Core;
 using System;
 using System.Collections.Generic;
@@ -36,6 +37,7 @@ public sealed class ProtectedResourceOptions
     public string? SigningKeyName { get; set; }
     public string? SigningCertificateName { get; set; }
     public string? SigningKeyObjectVersion { get; set; }
+    public string SigningAlgorithm { get; set; } = SecurityAlgorithms.RsaSha256;
 
     public TokenCredential AzureTokenCredential { get; set; } = new DefaultAzureCredential();
     public ProtectedResourceMetadataSigningKeyType SigningKeyType
@@ -66,20 +68,20 @@ public static class ProtectedResourceOptionsExtensions
     /// </summary>
     /// <param name="options">The options to validate.</param>
     /// <returns>True if the options are valid, otherwise false.</returns>
-    public static Uri? TryGetDiscoveryUri(this ProtectedResourceOptions options)
-    {
-        var discoveryUri = options switch
-        {
-            { ProtectedMetadataAddress.IsAbsoluteUri: true } => options.ProtectedMetadataAddress, // If the path is absolute, use it directly
+    //public static Uri? TryGetDiscoveryUri(this ProtectedResourceOptions options)
+    //{
+    //    var discoveryUri = options switch
+    //    {
+    //        { ProtectedMetadataAddress.IsAbsoluteUri: true } => options.ProtectedMetadataAddress, // If the path is absolute, use it directly
 
-            // Try to get the metadata document URI from defined resource host and optional hosted resource path
-            // Resource Host needs to be absolute
-            { ResourceHost: { }, HostedResourcePath: null } => new Uri(options.ResourceHost, options.ProtectedMetadataAddress),
-            { ResourceHost: { } } => new Uri(options.ResourceHost, $"{options.ProtectedMetadataAddress}/{options.HostedResourcePath}"), // If the resource host is absolute and the hosted resource path is provided, combine them
-            _ => null // If neither is set, return null
-        };
-        return discoveryUri;
-    }
+    //        // Try to get the metadata document URI from defined resource host and optional hosted resource path
+    //        // Resource Host needs to be absolute
+    //        { ResourceHost: { }, HostedResourcePath: null } => new Uri(options.ResourceHost, options.ProtectedMetadataAddress),
+    //        { ResourceHost: { } } => new Uri(options.ResourceHost, $"{options.ProtectedMetadataAddress}/{options.HostedResourcePath}"), // If the resource host is absolute and the hosted resource path is provided, combine them
+    //        _ => null // If neither is set, return null
+    //    };
+    //    return discoveryUri;
+    //}
 }
 
 public class ProtectedResource
