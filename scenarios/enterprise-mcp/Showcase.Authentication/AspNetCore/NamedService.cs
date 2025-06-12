@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Showcase.Authentication.AspNetCore;
+﻿namespace Showcase.Authentication.AspNetCore;
 /// <summary>
 /// Keyed services don't provide an accessible API for resolving
 /// all the service keys associated with a given type.

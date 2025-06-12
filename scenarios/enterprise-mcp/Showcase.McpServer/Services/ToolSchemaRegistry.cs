@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using Showcase.McpServer.Models;
 
 namespace Showcase.McpServer.Services;
 

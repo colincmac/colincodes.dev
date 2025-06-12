@@ -1,17 +1,9 @@
-﻿using Azure.Core;
-using Azure.Identity;
-using Azure.Security.KeyVault.Certificates;
-using Azure.Security.KeyVault.Keys;
-using Azure.Security.KeyVault.Keys.Cryptography;
+﻿using Azure.Security.KeyVault.Keys;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using Showcase;
 using Showcase.Authentication.Core;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Text.Json;
@@ -38,8 +30,8 @@ public class AzureKeyVaultProtectedResourceIssuer : ISignedProtectedResourceIssu
     {
         var keyVaultKey = await GetOrSetKeyVaultKeyAsync(cancellationToken);
 
-        if (keyVaultKey.Properties.ExpiresOn?.UtcDateTime > DateTime.UtcNow 
-            && _jwksDocument is not null 
+        if (keyVaultKey.Properties.ExpiresOn?.UtcDateTime > DateTime.UtcNow
+            && _jwksDocument is not null
             && _jwksDocument.Keys.Any()) return _jwksDocument;
 
 
@@ -68,15 +60,15 @@ public class AzureKeyVaultProtectedResourceIssuer : ISignedProtectedResourceIssu
         };
 
         var payload = new JwtPayload(
-            issuer: metadataResource, 
-            audience: metadataResource, 
-            claims: claims, 
-            notBefore: DateTime.UtcNow, 
-            expires: key.Properties.ExpiresOn?.UtcDateTime ?? DateTime.UtcNow.AddDays(1), 
+            issuer: metadataResource,
+            audience: metadataResource,
+            claims: claims,
+            notBefore: DateTime.UtcNow,
+            expires: key.Properties.ExpiresOn?.UtcDateTime ?? DateTime.UtcNow.AddDays(1),
             issuedAt: DateTime.UtcNow);
 
         var unsignedTokenData = header.Base64UrlEncode() + "." + payload.Base64UrlEncode();
-        
+
         var signResult = await cryptoClient.SignDataAsync(options.SigningAlgorithm, Encoding.UTF8.GetBytes(unsignedTokenData), cancellationToken: cancellationToken);
         var tokenValue = unsignedTokenData + "." + Base64UrlEncoder.Encode(signResult.Signature);
 

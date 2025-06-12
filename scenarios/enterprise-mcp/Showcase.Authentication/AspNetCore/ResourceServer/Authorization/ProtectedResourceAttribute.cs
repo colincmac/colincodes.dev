@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Showcase.Authentication.AspNetCore.ResourceServer.Authorization;
+﻿namespace Showcase.Authentication.AspNetCore.ResourceServer.Authorization;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class ProtectedResourceAttribute : Attribute, IProtectedResourceAuthorizationMetadata

@@ -1,20 +1,12 @@
-﻿using Microsoft.Identity.Web;
-using Microsoft.IdentityModel.JsonWebTokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using Microsoft.IdentityModel.JsonWebTokens;
 using System.Security.Claims;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace Showcase.Authentication.Core;
 public static class ProtectedResourceMetadataExtensions
 {
-    
+
     public static Claim[] ToClaims(this ProtectedResourceMetadata meta)
     {
         if (meta is null) throw new ArgumentNullException(nameof(meta));

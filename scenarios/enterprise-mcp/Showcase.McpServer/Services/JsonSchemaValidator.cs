@@ -1,6 +1,3 @@
-using System;
-using System.Text.Json;
-
 namespace Showcase.McpServer.Services;
 
 public interface IJsonSchemaValidator

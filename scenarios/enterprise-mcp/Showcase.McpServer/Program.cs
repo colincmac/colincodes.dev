@@ -1,18 +1,10 @@
 using Dapr.Client;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
-using Microsoft.IdentityModel.Tokens;
-using ModelContextProtocol;
-using OpenTelemetry;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
 using Showcase.McpServer.Models;
 using Showcase.McpServer.Services;
 using Showcase.McpServer.Tools;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 

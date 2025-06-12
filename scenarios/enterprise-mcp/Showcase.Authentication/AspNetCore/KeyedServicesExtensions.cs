@@ -1,16 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Showcase.Authentication.AspNetCore;
 internal static class KeyedServicesExtensions
-{    
-    
+{
+
     /// <summary>
      /// Gets the options for the given service key, or the current value if the service key is <see langword="null"/>.
      /// </summary>

@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Showcase.Authentication.Core;
+﻿namespace Showcase.Authentication.Core;
 public static class ProtectedResourceConstants
 {
     public const string DefaultOAuthProtectedResourcePathSuffix = "/.well-known/oauth-protected-resource";
-    
+
     public const string JsonWebKeySetPathSuffix = "/.well-known/jwks";
 
     public static class WWWAuthenticateKeys

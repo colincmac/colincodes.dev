@@ -1,19 +1,9 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿using System.Text.Json.Serialization;
 
 namespace Showcase.Authentication.Core;
 /// <summary>
 /// Represents the resource metadata for OAuth authorization as defined in RFC 9396.
-/// Defined by <see href="https://datatracker.ietf.org/doc/rfc9728/">RFC 9728</see>. 
+/// Defined by <see href="https://datatracker.ietf.org/doc/rfc9728/">RFC 9728</see>.
 /// </summary>
 public class ProtectedResourceMetadata
 {

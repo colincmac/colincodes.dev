@@ -1,14 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
-using Showcase.Authentication.Core;
-using System.Net.Http;
 using System.Text;
-using System.Text.Json;
 
 
 namespace Showcase.Authentication.AspNetCore.ResourceServer.Authentication;
@@ -18,7 +13,7 @@ internal class ProtectedResourceJwtBearerEvents
     private readonly ILogger<ProtectedResourceJwtBearerEvents> _logger;
 
     public ProtectedResourceJwtBearerEvents(
-        IOptionsMonitor<ProtectedResourceOptions> protectedResourceOptionsMonitor, 
+        IOptionsMonitor<ProtectedResourceOptions> protectedResourceOptionsMonitor,
         ILogger<ProtectedResourceJwtBearerEvents> logger
         )
     {
@@ -31,7 +26,7 @@ internal class ProtectedResourceJwtBearerEvents
     public Task Challenge(JwtBearerChallengeContext context)
     {
         var options = _optionsMonitor.Get(context.Scheme.Name);
-        
+
         if (options == null)
         {
             _logger.LogDebug("No ProtectedResourceOptions found for scheme: {Scheme}. Skipping challenge modification.", context.Scheme.Name);
@@ -46,7 +41,7 @@ internal class ProtectedResourceJwtBearerEvents
         };
 
         _logger.LogDebug("Adding Protected Metadata to Challenge header for scheme: {Scheme}", context.Scheme.Name);
-        
+
         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
 
 

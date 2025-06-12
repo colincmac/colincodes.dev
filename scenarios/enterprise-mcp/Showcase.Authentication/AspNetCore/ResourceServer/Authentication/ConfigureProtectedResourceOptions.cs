@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Protocols;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+﻿using Microsoft.Extensions.Options;
 using Showcase.Authentication.Core;
 
 
@@ -15,14 +11,15 @@ internal sealed class ConfigureProtectedResourceOptions : IPostConfigureOptions<
         ArgumentNullException.ThrowIfNull(name);
         var meta = options.Metadata;
 
-        if (options.SigningKeyType is not ProtectedResourceMetadataSigningKeyType.None && meta.JwksUri is null)
+        if (options.SigningKeyType is not ProtectedResourceMetadataSigningKeyType.None
+            && meta.JwksUri is null)
         {
             meta.JwksUri = meta.Resource switch
             {
-                { IsAbsoluteUri: true } => new Uri(meta.Resource, options.JwksDocumentPath),
-                _ => options.JwksDocumentPath
+                { IsAbsoluteUri: true, AbsolutePath: var absolutePath } when absolutePath != "/" => new Uri(new Uri($"${meta.Resource.Scheme}://{meta.Resource.Host}{ProtectedResourceConstants.JsonWebKeySetPathSuffix}"), absolutePath),
+                { IsAbsoluteUri: true } => new Uri(meta.Resource, ProtectedResourceConstants.JsonWebKeySetPathSuffix),
+                _ => new Uri(ProtectedResourceConstants.JsonWebKeySetPathSuffix, UriKind.Relative)
             };
         }
-
     }
 }
