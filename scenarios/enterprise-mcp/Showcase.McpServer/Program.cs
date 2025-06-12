@@ -9,7 +9,6 @@ using ModelContextProtocol.Authentication;
 using OpenTelemetry;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using Showcase.McpServer.Extensions.Auth;
 using Showcase.McpServer.Models;
 using Showcase.McpServer.Services;
 using Showcase.McpServer.Tools;
@@ -34,7 +33,6 @@ var serverUrl = "http://localhost:7071/";
 var tenantId = "a2213e1c-e51e-4304-9a0d-effe57f31655";
 var instance = "https://login.microsoftonline.com/";
 
-builder.Services.AddProtectedResourceMetadata(builder.Configuration, "ProtectedResource");
 
 builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration);
 

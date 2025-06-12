@@ -77,7 +77,7 @@ public class AzureKeyVaultProtectedResourceIssuer : ISignedProtectedResourceIssu
 
         var unsignedTokenData = header.Base64UrlEncode() + "." + payload.Base64UrlEncode();
         
-        var signResult = await _cryptographyClient.SignDataAsync(options.SigningAlgorithm, Encoding.UTF8.GetBytes(unsignedTokenData), cancellationToken: cancellationToken);
+        var signResult = await cryptoClient.SignDataAsync(options.SigningAlgorithm, Encoding.UTF8.GetBytes(unsignedTokenData), cancellationToken: cancellationToken);
         var tokenValue = unsignedTokenData + "." + Base64UrlEncoder.Encode(signResult.Signature);
 
         metadata.SignedMetadata = tokenValue;

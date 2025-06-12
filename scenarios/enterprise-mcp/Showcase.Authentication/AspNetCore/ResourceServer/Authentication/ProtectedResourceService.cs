@@ -24,19 +24,17 @@ public sealed class ProtectedResourceService : IProtectedResourceMetadataProvide
         _hostedResource = hostedResource;
     }
 
-    public async Task<ProtectedResourceMetadata> GetProtectedResourceMetadataAsync(CancellationToken? cancellationToken = default)
+    public Task<ProtectedResourceMetadata> GetProtectedResourceMetadataAsync(Uri? resourceUri, CancellationToken? cancellationToken = default)
     {
         var options = _optionsMonitor.GetKeyedOrCurrent(_hostedResource);
-        options.Metadata.Resource ??= _httpContextAccessor.HttpContext.Request.U
         if (options.Metadata.Resource is null && _httpContextAccessor.HttpContext is null)
         {
             throw new InvalidOperationException("The Resource Metadata `Resource` value must be set statically or provided from the HTTPContext");
         }
 
-        if (options.Metadata.Resource is null && _httpContextAccessor.HttpContext?.Request.Path is null) 
             
 
-        return Task.FromResult(ProtectedResourceMetadata);
+        return Task.FromResult(options.Metadata);
     }
     public Task<JsonWebKeySet> GetJwksDocumentAsync(CancellationToken? cancellationToken = null)
     {
