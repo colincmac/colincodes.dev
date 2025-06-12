@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="../../.github/workflows/copilot-setup-steps.yml" />
+  </Folder>
+  <Project Path="Showcase.AppHost/Showcase.AppHost.csproj" />
+  <Project Path="Showcase.Authentication/Showcase.Authentication.csproj" />
+  <Project Path="Showcase.McpServer/Showcase.McpServer.csproj" />
+  <Project Path="Showcase.ServiceDefaults/Showcase.ServiceDefaults.csproj" />
+  <Project Path="Showcase.Tests/Showcase.Tests.csproj" />
+  <Project Path="Showcase.Web/Showcase.Web.csproj" />
+  <Project Path="TestApp/TestApp.csproj" />
+</Solution>

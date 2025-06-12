@@ -14,7 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Showcase.McpServer.Extensions\Showcase.McpServer.Extensions.csproj" />
     <ProjectReference Include="..\Showcase.ServiceDefaults\Showcase.ServiceDefaults.csproj" />
   </ItemGroup>
 

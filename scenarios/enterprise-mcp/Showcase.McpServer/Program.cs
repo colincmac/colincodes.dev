@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Tokens;
 using ModelContextProtocol;
-using ModelContextProtocol.AspNetCore.Authentication;
-using ModelContextProtocol.Authentication;
 using OpenTelemetry;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
