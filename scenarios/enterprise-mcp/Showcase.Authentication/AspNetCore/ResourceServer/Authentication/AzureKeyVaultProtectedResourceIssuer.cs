@@ -60,7 +60,7 @@ public class AzureKeyVaultProtectedResourceIssuer : ISignedProtectedResourceIssu
         var key = await GetOrSetKeyVaultKeyAsync(cancellationToken);
 
         var metadataResource = metadata.Resource.ToString();
-        var claims = metadata.ToClaimsViaJson();
+        var claims = metadata.ToClaims();
         var header = new JwtHeader
         {
             { JwtHeaderParameterNames.Typ, JwtConstants.HeaderType },

@@ -126,7 +126,7 @@ var metadata = new ProtectedResourceMetadata
 
 //var claims = JsonSerializer.SerializeToNode(metadata)?.AsObject()
 //    .Select(x => new Claim(x.Key, x.Value?.ToString(), JsonClaimValueTypes.Json)) ?? throw new InvalidOperationException("Metadata payload cannot be null.");
-var claims = metadata.ToClaimsViaJson() ?? throw new InvalidOperationException("Metadata payload cannot be null.");
+var claims = metadata.ToClaims() ?? throw new InvalidOperationException("Metadata payload cannot be null.");
 
 var header = new JwtHeader
         {
