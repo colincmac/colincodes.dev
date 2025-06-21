@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Microsoft.IdentityModel.Tokens;
 using Showcase.Authentication.AspNetCore.ResourceServer.Authentication;
 using Showcase.Authentication.AspNetCore.ResourceServer.KeySigning;
+using Showcase.Authentication.AspNetCore.ResourceServer.Authorization;
 
 namespace Showcase.Authentication.Core;
 
@@ -17,5 +18,10 @@ namespace Showcase.Authentication.Core;
 [JsonSerializable(typeof(ProtectedResourceOptions))]
 [JsonSerializable(typeof(JwksProviderOptions))]
 [JsonSerializable(typeof(AzureKeyVaultProtectedResourceIssuer))]
+[JsonSerializable(typeof(DPoPAuthenticationOptions))]
+[JsonSerializable(typeof(AuthorizationDetail))]
+[JsonSerializable(typeof(AuthorizationDetailsValidationResult))]
+[JsonSerializable(typeof(AuthorizationDetailValidationResult))]
+[JsonSerializable(typeof(List<AuthorizationDetail>))]
 public partial class JsonContext : JsonSerializerContext;
 

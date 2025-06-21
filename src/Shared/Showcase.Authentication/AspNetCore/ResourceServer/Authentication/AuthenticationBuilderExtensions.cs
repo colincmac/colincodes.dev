@@ -7,9 +7,12 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Showcase.Authentication.AspNetCore.ResourceServer.Endpoints;
 using Showcase.Authentication.AspNetCore.ResourceServer.KeySigning;
+using Showcase.Authentication.AspNetCore.ResourceServer.Authorization;
+using Showcase.Authentication.AspNetCore.ResourceServer.HealthChecks;
 using Showcase.Authentication.Core;
 
 namespace Showcase.Authentication.AspNetCore.ResourceServer.Authentication;
@@ -51,6 +54,8 @@ public static class AuthenticationBuilderExtensions
         // Configure the authentication scheme's events to include protected resource metadata in the WWW-Authenticate header
         serviceCollection.AddTransient<ProtectedResourceJwtBearerEvents>();
         serviceCollection.AddSingleton<ConfigureJwtBearerOptions>();
+        
+        serviceCollection.AddTransient<AuthorizationDetailsValidator>();
 
         serviceCollection.AddSingleton<IPostConfigureOptions<JwtBearerOptions>>(sp =>
         {
@@ -125,6 +130,68 @@ public static class AuthenticationBuilderExtensions
         return services;
     }
     #endregion
+
+    /// <summary>
+    /// </summary>
+    /// <param name="authenticationBuilder">The authentication builder.</param>
+    /// <param name="configureOptions">Optional configuration for DPoP options.</param>
+    /// <returns>The authentication builder for chaining.</returns>
+    public static AuthenticationBuilder AddDPoP(
+        this AuthenticationBuilder authenticationBuilder,
+        Action<DPoPAuthenticationOptions>? configureOptions = null)
+    {
+        ArgumentNullException.ThrowIfNull(authenticationBuilder);
+
+        authenticationBuilder.AddScheme<DPoPAuthenticationOptions, DPoPAuthenticationHandler>(
+            ProtectedResourceConstants.AuthenticationSchemes.DPoP,
+            ProtectedResourceConstants.AuthenticationSchemes.DPoP,
+            configureOptions);
+
+        return authenticationBuilder;
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="authenticationScheme">The authentication scheme to monitor (defaults to Bearer).</param>
+    /// <returns>The health checks builder for further configuration.</returns>
+    public static IHealthChecksBuilder AddProtectedResourceHealthChecks(
+        this IServiceCollection services,
+        string authenticationScheme = JwtBearerDefaults.AuthenticationScheme)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+
+        return services.AddHealthChecks()
+            .AddProtectedResourceMetadata(authenticationScheme);
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="authenticationSchemes">The authentication schemes to monitor.</param>
+    /// <returns>The health checks builder for further configuration.</returns>
+    public static IHealthChecksBuilder AddProtectedResourceHealthChecksForSchemes(
+        this IServiceCollection services,
+        params string[] authenticationSchemes)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(authenticationSchemes);
+
+        return services.AddHealthChecks()
+            .AddProtectedResourceMetadataForSchemes(authenticationSchemes);
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddAuthorizationDetailsValidation(this IServiceCollection services)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+
+        services.AddTransient<AuthorizationDetailsValidator>();
+        return services;
+    }
 
     private static IServiceCollection AddMonitoredDiscoveryEndpoint<TDocumentType, TProvider>(this IServiceCollection services, string authenticationScheme)
         where TDocumentType : class
