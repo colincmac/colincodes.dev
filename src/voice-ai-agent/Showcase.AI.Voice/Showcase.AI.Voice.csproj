@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Core" />
+    <PackageReference Include="Microsoft.SemanticKernel.Process.Abstractions" />
+    <PackageReference Include="Microsoft.SemanticKernel.Process.LocalRuntime" />
+    <PackageReference Include="StackExchange.Redis" />
+    <PackageReference Include="Azure.Communication.CallAutomation" />
+
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Shared\Showcase.AI.Realtime.Extensions\Showcase.AI.Realtime.Extensions.csproj" />
+    <ProjectReference Include="..\..\Shared\Showcase.ServiceDefaults\Showcase.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Processes\" />
+  </ItemGroup>
+
+</Project>

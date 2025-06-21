@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.3.1" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>6f940ed0-518e-42a0-a915-c38e7ad813d1</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\enterprise-mcp\Showcase.EnterpriseMcp.Server\Showcase.EnterpriseMcp.Server.csproj" />
+    <ProjectReference Include="..\..\voice-ai-agent\Showcase.AI.Voice.ProcessAgent\Showcase.AI.Voice.ProcessAgent.csproj" />
+    <ProjectReference Include="..\Showcase.Web\Showcase.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.Redis" />
+    <PackageReference Include="Aspire.Hosting.Azure.CognitiveServices" />
+  </ItemGroup>
+
+</Project>

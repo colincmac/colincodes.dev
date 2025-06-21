@@ -1,0 +1,41 @@
+<Solution>
+  <Folder Name="/.github/">
+    <Folder Name="/workflows/">
+      <File Path=".github/workflows/copilot-setup-steps.yml" />
+    </Folder>
+    <Folder Name="/actions/">
+    </Folder>
+    <File Path=".github/copilot-instructions.md" />
+  </Folder>
+
+  <Folder Name="/Solution Items/">
+    <File Path="global.json" />
+    <File Path=".editorconfig" />
+  </Folder>
+
+  <Folder Name="/test/">
+    <Project Path="test/Showcase.Authentication.Tests/Showcase.Authentication.Tests.csproj" Id="ba6141fc-b68a-4fbc-a017-087da2a554d4">
+      <BuildDependency Project="src/Shared/Showcase.Authentication/Showcase.Authentication.csproj" />
+    </Project>
+    <Project Path="test/Showcase.EnterpriseMcp.Tests/Showcase.EnterpriseMcp.Tests.csproj" Id="572e4d5b-2102-4c05-b999-67c8d0af265a" />
+  </Folder>
+
+  <Folder Name="/Enterprise MCP/">
+    <Project Path="src/enterprise-mcp/Showcase.EnterpriseMcp.Server/Showcase.EnterpriseMcp.Server.csproj" />
+    <Project Path="src/enterprise-mcp/TestApp/TestApp.csproj" />
+  </Folder>
+
+  <Folder Name="/Shared/">
+    <Project Path="src/Shared/Showcase.AI.Realtime.Extensions/Showcase.AI.Realtime.Extensions.csproj" Id="72d06a18-afeb-4ab4-bc65-6ba9c1884de1" />
+    <Project Path="src/Shared/Showcase.AppHost/Showcase.AppHost.csproj" />
+    <Project Path="src/Shared/Showcase.Authentication/Showcase.Authentication.csproj" />
+    <Project Path="src/Shared/Showcase.Azure/Showcase.Azure.csproj" Id="a5dd8fc0-58c9-438f-a71d-479c3a456e02" />
+    <Project Path="src/Shared/Showcase.ServiceDefaults/Showcase.ServiceDefaults.csproj" />
+    <Project Path="src/Shared/Showcase.Web/Showcase.Web.csproj" />
+  </Folder>
+  <Folder Name="/Voice AI/">
+    <Project Path="src/voice-ai-agent/Showcase.AI.Voice.ProcessAgent/Showcase.AI.Voice.ProcessAgent.csproj" />
+    <Project Path="src/voice-ai-agent/Showcase.AI.Voice/Showcase.AI.Voice.csproj" />
+  </Folder>
+
+</Solution>
