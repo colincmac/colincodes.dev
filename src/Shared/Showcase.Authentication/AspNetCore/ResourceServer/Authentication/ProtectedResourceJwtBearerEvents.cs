@@ -100,7 +100,7 @@ public sealed class ProtectedResourceJwtBearerEvents
             throw new InvalidOperationException($"Protected resource metadata address must use HTTPS when RequireHttpsMetadata is true. Current scheme: {options.ProtectedResourceMetadataAddress.Scheme}");
         }
 
-        if (options.Metadata.AuthorizationServers?.Any() == true)
+        if (options.Metadata.AuthorizationServers?.Count > 0)
         {
             foreach (var authServer in options.Metadata.AuthorizationServers)
             {
@@ -128,31 +128,31 @@ public sealed class ProtectedResourceJwtBearerEvents
         ValidateOptionalUri(options.Metadata.ResourcePolicyUri, nameof(options.Metadata.ResourcePolicyUri), requireHttpsMetadata);
         ValidateOptionalUri(options.Metadata.ResourceTosUri, nameof(options.Metadata.ResourceTosUri), requireHttpsMetadata);
 
-        if (options.Metadata.BearerMethodsSupported?.Any() == true)
+        if (options.Metadata.BearerMethodsSupported?.Count > 0)
         {
             var validMethods = new[] { "header", "body", "query" };
             var invalidMethods = options.Metadata.BearerMethodsSupported.Except(validMethods).ToList();
-            if (invalidMethods.Any())
+            if (invalidMethods.Count != 0)
             {
                 throw new InvalidOperationException($"Invalid bearer methods: {string.Join(", ", invalidMethods)}. Valid methods are: {string.Join(", ", validMethods)}");
             }
         }
 
-        if (options.Metadata.DpopSigningAlgValuesSupported?.Any() == true)
+        if (options.Metadata.DpopSigningAlgValuesSupported?.Count > 0)
         {
             var validAlgorithms = new[] { "RS256", "RS384", "RS512", "ES256", "ES384", "ES512", "PS256", "PS384", "PS512" };
             var invalidAlgorithms = options.Metadata.DpopSigningAlgValuesSupported.Except(validAlgorithms).ToList();
-            if (invalidAlgorithms.Any())
+            if (invalidAlgorithms.Count != 0)
             {
                 throw new InvalidOperationException($"Invalid DPoP signing algorithms: {string.Join(", ", invalidAlgorithms)}. Valid algorithms are: {string.Join(", ", validAlgorithms)}");
             }
         }
 
-        if (options.Metadata.ResourceSigningAlgValuesSupported?.Any() == true)
+        if (options.Metadata.ResourceSigningAlgValuesSupported?.Count > 0)
         {
             var validAlgorithms = new[] { "RS256", "RS384", "RS512", "ES256", "ES384", "ES512", "PS256", "PS384", "PS512" };
             var invalidAlgorithms = options.Metadata.ResourceSigningAlgValuesSupported.Except(validAlgorithms).ToList();
-            if (invalidAlgorithms.Any())
+            if (invalidAlgorithms.Count != 0)
             {
                 throw new InvalidOperationException($"Invalid resource signing algorithms: {string.Join(", ", invalidAlgorithms)}. Valid algorithms are: {string.Join(", ", validAlgorithms)}");
             }
